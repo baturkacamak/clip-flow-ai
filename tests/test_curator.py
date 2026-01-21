@@ -1,8 +1,9 @@
 import pytest
+
 from src.intelligence.curator import ContentCurator
-from src.config_manager import ConfigManager
-from src.transcription.models import TranscriptionResult, Segment
 from src.intelligence.models import ViralClip
+from src.transcription.models import Segment, TranscriptionResult
+
 
 @pytest.fixture
 def mock_config_manager(tmp_path):

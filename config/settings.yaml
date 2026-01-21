@@ -32,5 +32,11 @@ intelligence:
   chunk_duration_minutes: 10
   focus_topic: null # Optional filter
 
+vision:
+  face_detection_confidence: 0.7
+  stabilization_factor: 0.1 # Alpha for EMA (0.1 = smooth, 0.9 = responsive)
+  vertical_crop_ratio: 0.5625 # 9/16 = 0.5625
+  debug_preview: true
+
 pipeline:
   target_aspect_ratio: "9:16"

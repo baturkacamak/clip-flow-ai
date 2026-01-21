@@ -1,15 +1,16 @@
-import os
-import math
-from typing import List, Optional, Any
-from pydantic import BaseModel
+from typing import Any, List, Optional
+
 import instructor
-from openai import OpenAI
 from anthropic import Anthropic
 from loguru import logger
+from openai import OpenAI
+from pydantic import BaseModel
+
 from src.config_manager import ConfigManager
-from src.transcription.models import TranscriptionResult, Segment
 from src.intelligence.models import CurationResult, ViralClip
-from src.intelligence.prompts import VIDEO_EDITOR_SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
+from src.intelligence.prompts import USER_PROMPT_TEMPLATE, VIDEO_EDITOR_SYSTEM_PROMPT
+from src.transcription.models import TranscriptionResult
+
 
 class ContentCurator:
     def __init__(self, config_manager: ConfigManager):

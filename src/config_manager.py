@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
+from typing import Optional
+
 import yaml
 from pydantic import BaseModel, Field
-from typing import Optional
+
 
 class PathsConfig(BaseModel):
     base_dir: str = Field(default=".")
@@ -40,6 +42,12 @@ class IntelligenceConfig(BaseModel):
     openai_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY"))
     anthropic_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY"))
 
+class VisionConfig(BaseModel):
+    face_detection_confidence: float = Field(default=0.7)
+    stabilization_factor: float = Field(default=0.1)
+    vertical_crop_ratio: float = Field(default=9/16)
+    debug_preview: bool = Field(default=True)
+
 class PipelineConfig(BaseModel):
     target_aspect_ratio: str = Field(default="9:16")
 
@@ -48,6 +56,7 @@ class AppConfig(BaseModel):
     downloader: DownloaderConfig
     transcription: TranscriptionConfig
     intelligence: IntelligenceConfig
+    vision: VisionConfig
     pipeline: PipelineConfig
 
 class ConfigManager:
@@ -82,6 +91,10 @@ class ConfigManager:
     @property
     def intelligence(self) -> IntelligenceConfig:
         return self.config.intelligence
+
+    @property
+    def vision(self) -> VisionConfig:
+        return self.config.vision
 
     @property
     def pipeline(self) -> PipelineConfig:
