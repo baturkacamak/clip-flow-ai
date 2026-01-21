@@ -1,9 +1,10 @@
-from pathlib import Path
-from typing import Any, List, Optional
-
 import cv2
 import mediapipe as mp
+from pathlib import Path
+from typing import Any, List, Optional
 from loguru import logger
+from scenedetect import VideoManager, SceneManager
+from scenedetect.detectors import ContentDetector
 
 from src.config_manager import ConfigManager
 from src.intelligence.models import ViralClip
@@ -21,6 +22,36 @@ class SmartCropper:
             min_detection_confidence=self.cfg.face_detection_confidence
         )
         self.stabilizer = Stabilizer(alpha=self.cfg.stabilization_factor)
+
+    def _detect_scenes(self, video_path: str, start_time: float, end_time: float) -> List[int]:
+        """Detects scene cuts in the given time range. Returns frame indices."""
+        try:
+            video_manager = VideoManager([video_path])
+            scene_manager = SceneManager()
+            scene_manager.add_detector(ContentDetector())
+            
+            # Set duration
+            # VideoManager uses timecodes string or frame numbers?
+            # It seems it processes the whole video or we can seek.
+            # set_duration(start_time=..., end_time=...)
+            video_manager.set_duration(start_time=start_time, end_time=end_time)
+            
+            # Start
+            video_manager.start()
+            scene_manager.detect_scenes(frame_source=video_manager)
+            
+            scene_list = scene_manager.get_scene_list()
+            # scene_list is list of (start, end) timecodes.
+            # We want the start frame of each new scene (except the very first one relative to clip)
+            cuts = []
+            for i, scene in enumerate(scene_list):
+                if i == 0: continue # Skip start
+                cuts.append(scene[0].get_frames())
+            
+            return cuts
+        except Exception as e:
+            logger.warning(f"Scene detection failed: {e}")
+            return []
 
     def process_clips(self, video_path: str, clips: List[ViralClip], video_id: str) -> List[ClipCropData]:
         """
@@ -48,7 +79,12 @@ class SmartCropper:
             logger.info(f"Processing clip: {clip.title} ({clip.start_time:.1f}s - {clip.end_time:.1f}s)")
             self.stabilizer.reset() # Reset stabilizer for each new clip
             
-            crop_data = self._process_single_clip(cap, clip, width, height, fps, video_id)
+            # Detect scenes for this clip to handle cuts
+            cuts = self._detect_scenes(video_path, clip.start_time, clip.end_time)
+            if cuts:
+                logger.info(f"Detected {len(cuts)} scene cuts in clip.")
+            
+            crop_data = self._process_single_clip(cap, clip, width, height, fps, video_id, cuts)
             if crop_data:
                 results.append(crop_data)
                 
@@ -61,7 +97,8 @@ class SmartCropper:
         return results
 
     def _process_single_clip(self, cap: cv2.VideoCapture, clip: ViralClip, 
-                             video_w: int, video_h: int, fps: float, video_id: str) -> Optional[ClipCropData]:
+                             video_w: int, video_h: int, fps: float, video_id: str,
+                             cuts: List[int]) -> Optional[ClipCropData]:
         
         start_frame = int(clip.start_time * fps)
         end_frame = int(clip.end_time * fps)
@@ -77,17 +114,18 @@ class SmartCropper:
         if self.cfg.debug_preview:
             debug_path = Path(self.paths.workspace_dir) / f"debug_{clip_id}.mp4"
             fourcc = cv2.VideoWriter_fourcc(*'mp4v') # type: ignore
-            # Preview is vertical 9:16? Or Just raw with box?
-            # Let's write the cropped result for visualization
             target_w = int(video_h * self.cfg.vertical_crop_ratio)
             target_h = video_h
-            debug_writer = cv2.VideoWriter(str(debug_writer), fourcc, fps, (target_w, target_h)) # Error here? str(Path)
-            # Re-init correctly below
             debug_writer = cv2.VideoWriter(str(debug_path), fourcc, fps, (target_w, target_h))
 
         current_frame_idx = start_frame
         
         while current_frame_idx < end_frame:
+            # Check for cut
+            if current_frame_idx in cuts:
+                logger.debug(f"Scene cut at frame {current_frame_idx}. Resetting stabilizer.")
+                self.stabilizer.reset()
+
             ret, frame = cap.read()
             if not ret:
                 break
@@ -112,9 +150,7 @@ class SmartCropper:
                 raw_x = int((bbox.xmin + bbox.width / 2) * video_w)
                 _raw_y = int((bbox.ymin + bbox.height / 2) * video_h)
                 
-                # We mainly care about X for 9:16 crop from 16:9. Y is usually full height.
                 face_center_x = raw_x
-                # face_center_y = raw_y # We might want to keep Y stable or track it too.
             
             # Stabilize
             smooth_x, smooth_y = self.stabilizer.update(face_center_x, face_center_y)
@@ -124,7 +160,7 @@ class SmartCropper:
             target_w = int(target_h * self.cfg.vertical_crop_ratio)
             
             crop_x = smooth_x - (target_w // 2)
-            crop_y = 0 # Vertical is full height usually
+            crop_y = 0 
             
             # Boundary checks
             crop_x = max(0, min(crop_x, video_w - target_w))
@@ -142,13 +178,7 @@ class SmartCropper:
             
             # Debug Preview
             if debug_writer:
-                # Crop the frame
                 cropped_frame = frame[crop_y:crop_y+target_h, crop_x:crop_x+target_w]
-                
-                # Draw green box on face relative to crop? 
-                # Or just save the cropped result.
-                # If we want to see the face detection, we'd need to draw on original then crop.
-                # Let's just save the cropped frame to see stability.
                 if cropped_frame.shape[0] == target_h and cropped_frame.shape[1] == target_w:
                      debug_writer.write(cropped_frame)
             

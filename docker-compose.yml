@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  worker:
+    build: .
+    command: celery -A src.worker worker --loglevel=info --concurrency=1
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - ./outputs:/app/outputs
+      - ./assets:/app/assets
+      - ./config:/app/config
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  cli:
+    build: .
+    command: tail -f /dev/null # Keep alive for manual exec
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./outputs:/app/outputs
+      - ./assets:/app/assets
+      - ./config:/app/config
+    depends_on:
+      - redis
