@@ -1,9 +1,8 @@
+import os
 from pathlib import Path
-from typing import Optional
-
 import yaml
 from pydantic import BaseModel, Field
-
+from typing import Optional
 
 class PathsConfig(BaseModel):
     base_dir: str = Field(default=".")
@@ -13,7 +12,6 @@ class PathsConfig(BaseModel):
     cookies_file: Optional[str] = Field(default="config/cookies.txt")
     history_file: str = Field(default="assets/workspace/download_history.json")
 
-
 class DownloaderConfig(BaseModel):
     resolution: str = Field(default="1080")
     min_resolution: str = Field(default="720")
@@ -22,7 +20,6 @@ class DownloaderConfig(BaseModel):
     audio_format: str = Field(default="wav")
     check_duplicates: bool = Field(default=True)
     retries: int = Field(default=3)
-
 
 class TranscriptionConfig(BaseModel):
     model_size: str = Field(default="large-v2")
@@ -34,33 +31,36 @@ class TranscriptionConfig(BaseModel):
     min_silence_duration_ms: int = Field(default=500)
     enable_diarization: bool = Field(default=False)
 
+class IntelligenceConfig(BaseModel):
+    llm_provider: str = Field(default="openai")
+    model_name: str = Field(default="gpt-4-0125-preview")
+    virality_threshold: int = Field(default=75)
+    chunk_duration_minutes: int = Field(default=10)
+    focus_topic: Optional[str] = Field(default=None)
+    openai_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY"))
+    anthropic_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY"))
 
 class PipelineConfig(BaseModel):
     target_aspect_ratio: str = Field(default="9:16")
-    llm_model: str = Field(default="gpt-4")
-
 
 class AppConfig(BaseModel):
     paths: PathsConfig
     downloader: DownloaderConfig
     transcription: TranscriptionConfig
+    intelligence: IntelligenceConfig
     pipeline: PipelineConfig
-
 
 class ConfigManager:
     """
     Manages loading and validation of application configuration.
     """
-
     def __init__(self, config_path: str = "config/settings.yaml"):
         self.config_path = Path(config_path)
         self.config: AppConfig = self._load_config()
 
     def _load_config(self) -> AppConfig:
         if not self.config_path.exists():
-            raise FileNotFoundError(
-                f"Configuration file not found at {self.config_path}"
-            )
+            raise FileNotFoundError(f"Configuration file not found at {self.config_path}")
 
         with open(self.config_path, "r") as f:
             raw_config = yaml.safe_load(f)
@@ -78,6 +78,10 @@ class ConfigManager:
     @property
     def transcription(self) -> TranscriptionConfig:
         return self.config.transcription
+
+    @property
+    def intelligence(self) -> IntelligenceConfig:
+        return self.config.intelligence
 
     @property
     def pipeline(self) -> PipelineConfig:

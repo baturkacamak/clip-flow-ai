@@ -23,8 +23,14 @@ transcription:
   beam_size: 5
   vad_filter: true
   min_silence_duration_ms: 500
-  enable_diarization: false # Placeholder for Part 2
+  enable_diarization: false
+
+intelligence:
+  llm_provider: "openai" # openai or anthropic
+  model_name: "gpt-4-0125-preview" # or claude-3-sonnet-20240229
+  virality_threshold: 75
+  chunk_duration_minutes: 10
+  focus_topic: null # Optional filter
 
 pipeline:
   target_aspect_ratio: "9:16"
-  llm_model: "gpt-4"

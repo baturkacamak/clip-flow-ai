@@ -19,9 +19,17 @@ def mock_config_file(tmp_path):
         "downloader": {
             "resolution": "1080",
             "min_resolution": "720",
-            "check_duplicates": False,
+            "check_duplicates": False
         },
-        "pipeline": {"target_aspect_ratio": "9:16"},
+        "transcription": {
+            "model_size": "large-v2"
+        },
+        "intelligence": {
+            "llm_provider": "openai"
+        },
+        "pipeline": {
+            "target_aspect_ratio": "9:16"
+        }
     }
 
     config_path = tmp_path / "test_settings.yaml"
@@ -48,7 +56,13 @@ def test_config_file_not_found():
 def test_default_values(tmp_path):
     """Test that default values are used when optional fields are missing (if applicable)."""
     # Create minimal config
-    config_data = {"paths": {}, "downloader": {}, "pipeline": {}}
+    config_data = {
+        "paths": {}, 
+        "downloader": {}, 
+        "transcription": {}, 
+        "intelligence": {}, 
+        "pipeline": {}
+    }
     config_path = tmp_path / "minimal.yaml"
     with open(config_path, "w") as f:
         yaml.dump(config_data, f)
