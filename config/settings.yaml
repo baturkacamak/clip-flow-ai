@@ -60,5 +60,10 @@ overlay:
   max_words_per_line: 3
   vertical_position: 0.7
 
+packaging:
+  thumbnail_font_path: "assets/fonts/TheBoldFont.ttf"
+  max_title_length: 50
+  hashtags_count: 5
+
 pipeline:
   target_aspect_ratio: "9:16"

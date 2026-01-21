@@ -3,7 +3,7 @@ from typing import Any, List
 
 import numpy as np
 from loguru import logger
-from moviepy import CompositeVideoClip, VideoFileClip, concatenate_videoclips, vfx
+from moviepy import AudioFileClip, CompositeVideoClip, VideoFileClip, concatenate_videoclips, vfx
 
 from src.config_manager import ConfigManager
 from src.editing.effects import create_blurred_background

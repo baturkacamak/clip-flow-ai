@@ -1,10 +1,8 @@
 import os
 from pathlib import Path
-from typing import Optional, Tuple
-
 import yaml
 from pydantic import BaseModel, Field
-
+from typing import Optional, List, Tuple
 
 class PathsConfig(BaseModel):
     base_dir: str = Field(default=".")
@@ -70,6 +68,11 @@ class OverlayConfig(BaseModel):
     max_words_per_line: int = Field(default=3)
     vertical_position: float = Field(default=0.7)
 
+class PackagingConfig(BaseModel):
+    thumbnail_font_path: str = Field(default="assets/fonts/TheBoldFont.ttf")
+    max_title_length: int = Field(default=50)
+    hashtags_count: int = Field(default=5)
+
 class PipelineConfig(BaseModel):
     target_aspect_ratio: str = Field(default="9:16")
 
@@ -82,6 +85,7 @@ class AppConfig(BaseModel):
     retrieval: RetrievalConfig
     editing: EditingConfig
     overlay: OverlayConfig
+    packaging: PackagingConfig
     pipeline: PipelineConfig
 
 class ConfigManager:
@@ -132,6 +136,10 @@ class ConfigManager:
     @property
     def overlay(self) -> OverlayConfig:
         return self.config.overlay
+
+    @property
+    def packaging(self) -> PackagingConfig:
+        return self.config.packaging
 
     @property
     def pipeline(self) -> PipelineConfig:
