@@ -51,5 +51,14 @@ editing:
   fade_in_duration: 0.5
   transition_duration: 0.2
 
+overlay:
+  font_path: "assets/fonts/TheBoldFont.ttf"
+  font_size: 70
+  highlight_color: "#FFFF00"
+  text_color: "#FFFFFF"
+  stroke_width: 4
+  max_words_per_line: 3
+  vertical_position: 0.7
+
 pipeline:
   target_aspect_ratio: "9:16"

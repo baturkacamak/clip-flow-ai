@@ -1,7 +1,9 @@
+from typing import Tuple
+
 import numpy as np
 from skimage.filters import gaussian
 from skimage.transform import resize
-from typing import Tuple
+
 
 def create_blurred_background(frame: np.ndarray, radius: float, target_size: Tuple[int, int]) -> np.ndarray:
     """

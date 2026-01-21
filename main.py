@@ -1,18 +1,20 @@
 import sys
 from pathlib import Path
 from typing import List
-from loguru import logger
+
 from src.config_manager import ConfigManager
-from src.utils.logger import setup_logger
+from src.editing.compositor import VideoCompositor
+from src.editing.models import BRollSegment, RenderPlan
 from src.ingestion.downloader import VideoDownloader
-from src.transcription.engine import AudioTranscriber
 from src.intelligence.curator import ContentCurator
-from src.intelligence.models import ViralClip, CurationResult
-from src.vision.cropper import SmartCropper
+from src.intelligence.models import ViralClip
+from src.overlay.subtitle import SubtitleOverlay
 from src.retrieval.indexer import LibraryIndexer
 from src.retrieval.matcher import VisualMatcher
-from src.editing.compositor import VideoCompositor
-from src.editing.models import RenderPlan, BRollSegment
+from src.transcription.engine import AudioTranscriber
+from src.utils.logger import setup_logger
+from src.vision.cropper import SmartCropper
+
 
 def get_text_for_range(transcript, start: float, end: float) -> str:
     """Extracts text from transcript for a given time range."""
@@ -39,7 +41,7 @@ def main():
         level="DEBUG"
     )
     
-    logger.info("Starting AutoReelAI - Part 6: Compositing")
+    logger.info("Starting AutoReelAI - Part 7: Subtitle Overlay")
 
     # 3. Ingestion Phase
     downloader = VideoDownloader(config_manager)
@@ -123,7 +125,6 @@ def main():
             
             if b_roll_path:
                 logger.success(f"Clip {i}: Found B-Roll -> {b_roll_path}")
-                # Use B-Roll for the entire clip duration for now
                 b_roll_segments.append(BRollSegment(
                     start=clip.start_time,
                     end=clip.end_time,
@@ -133,21 +134,31 @@ def main():
                 logger.info(f"Clip {i}: No B-Roll match. Using Face Track.")
 
     # 7. Compositing Phase
+    clean_output_path = str(Path(config_manager.paths.output_dir) / "clean_output.mp4")
+    
     if crop_results and video_path:
         logger.info("Starting Compositing...")
         compositor = VideoCompositor(config_manager)
-        
-        output_file = str(Path(config_manager.paths.output_dir) / "clean_output.mp4")
         
         plan = RenderPlan(
             source_video_path=video_path,
             source_audio_path=audio_path,
             clip_crop_data=crop_results,
             b_roll_segments=b_roll_segments,
-            output_path=output_file
+            output_path=clean_output_path
         )
         
         compositor.render(plan)
+
+    # 8. Subtitle Overlay Phase
+    final_output_path = str(Path(config_manager.paths.output_dir) / "final_with_subs.mp4")
+    
+    if Path(clean_output_path).exists() and transcript:
+        logger.info("Starting Subtitle Overlay...")
+        overlay = SubtitleOverlay(config_manager)
+        overlay.overlay_subtitles(clean_output_path, transcript, final_output_path)
+    else:
+        logger.warning("Clean output not found or transcript missing. Skipping subtitles.")
 
 if __name__ == "__main__":
     main()

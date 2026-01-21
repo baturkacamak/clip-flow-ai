@@ -30,6 +30,7 @@ def mock_config_file(tmp_path):
         "vision": {},
         "retrieval": {},
         "editing": {},
+        "overlay": {},
         "pipeline": {
             "target_aspect_ratio": "9:16"
         }
@@ -67,6 +68,7 @@ def test_default_values(tmp_path):
         "vision": {},
         "retrieval": {},
         "editing": {},
+        "overlay": {},
         "pipeline": {}
     }
     config_path = tmp_path / "minimal.yaml"

@@ -1,8 +1,10 @@
-import pytest
+
 import numpy as np
-from unittest.mock import MagicMock
+import pytest
+
 from src.retrieval.indexer import LibraryIndexer
 from src.retrieval.matcher import VisualMatcher
+
 
 @pytest.fixture
 def mock_config_manager(mocker):

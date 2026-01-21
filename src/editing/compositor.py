@@ -1,14 +1,14 @@
-import cv2
-import numpy as np
-import bisect
-from typing import List, Dict, Any, Optional
 from pathlib import Path
+from typing import Any, List
+
+import numpy as np
 from loguru import logger
-from moviepy import VideoFileClip, AudioFileClip, CompositeVideoClip, concatenate_videoclips, vfx, afx
+from moviepy import CompositeVideoClip, VideoFileClip, concatenate_videoclips, vfx
+
 from src.config_manager import ConfigManager
-from src.editing.models import RenderPlan, BRollSegment
-from src.vision.models import ClipCropData
 from src.editing.effects import create_blurred_background
+from src.editing.models import RenderPlan
+
 
 class VideoCompositor:
     def __init__(self, config_manager: ConfigManager):
@@ -58,26 +58,10 @@ class VideoCompositor:
             # We need to capture crop_data.frames in closure
             frames_data = crop_data.frames
             
-            def crop_filter(get_frame: Any, t: float) -> np.ndarray:
+            def crop_filter(
+                get_frame: Any, t: float, fps: float = fps, frames_data: List[Any] = frames_data
+            ) -> np.ndarray:
                 frame = get_frame(t)
-                # Map t (relative to subclip start) to absolute t?
-                # moviepy's t is relative to clip start (0).
-                # But our crop_frames are indexed by absolute frame index?
-                # Wait, frames_data is list. We iterate it?
-                # We need absolute time: abs_t = start_t + t
-                # OR we just rely on frame index relative to start_frame.
-                
-                # frame_index in frames_data is absolute.
-                # src_clip starts at start_t.
-                # current_frame = int(t * fps)
-                # This current_frame is relative to subclip.
-                
-                # Let's find absolute frame index
-                abs_t = start_t + t
-                
-                # Find crop data
-                # We can search frames_data for timestamp near abs_t
-                # frames_data is sorted by timestamp.
                 
                 # Optimize:
                 idx = int(t * fps)

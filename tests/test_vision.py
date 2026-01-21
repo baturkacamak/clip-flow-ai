@@ -1,9 +1,12 @@
-import pytest
-import numpy as np
 from unittest.mock import MagicMock
-from src.vision.stabilizer import Stabilizer
-from src.vision.cropper import SmartCropper
+
+import numpy as np
+import pytest
+
 from src.intelligence.models import ViralClip
+from src.vision.cropper import SmartCropper
+from src.vision.stabilizer import Stabilizer
+
 
 def test_stabilizer_ema():
     # Alpha 0.5 for simple math

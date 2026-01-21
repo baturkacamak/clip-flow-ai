@@ -1,10 +1,12 @@
-import pytest
+
 import numpy as np
-from unittest.mock import MagicMock
-from src.editing.compositor import VideoCompositor
-from src.editing.models import RenderPlan, BRollSegment
-from src.vision.models import ClipCropData, FrameCrop
+import pytest
+
 from src.editing import effects
+from src.editing.compositor import VideoCompositor
+from src.editing.models import RenderPlan
+from src.vision.models import ClipCropData, FrameCrop
+
 
 @pytest.fixture
 def mock_config_manager(mocker):

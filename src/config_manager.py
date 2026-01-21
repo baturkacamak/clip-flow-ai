@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
+from typing import Optional, Tuple
+
 import yaml
 from pydantic import BaseModel, Field
-from typing import Optional, List, Tuple
+
 
 class PathsConfig(BaseModel):
     base_dir: str = Field(default=".")
@@ -59,6 +61,15 @@ class EditingConfig(BaseModel):
     fade_in_duration: float = Field(default=0.5)
     transition_duration: float = Field(default=0.2)
 
+class OverlayConfig(BaseModel):
+    font_path: str = Field(default="assets/fonts/TheBoldFont.ttf")
+    font_size: int = Field(default=70)
+    highlight_color: str = Field(default="#FFFF00")
+    text_color: str = Field(default="#FFFFFF")
+    stroke_width: int = Field(default=4)
+    max_words_per_line: int = Field(default=3)
+    vertical_position: float = Field(default=0.7)
+
 class PipelineConfig(BaseModel):
     target_aspect_ratio: str = Field(default="9:16")
 
@@ -70,6 +81,7 @@ class AppConfig(BaseModel):
     vision: VisionConfig
     retrieval: RetrievalConfig
     editing: EditingConfig
+    overlay: OverlayConfig
     pipeline: PipelineConfig
 
 class ConfigManager:
@@ -116,6 +128,10 @@ class ConfigManager:
     @property
     def editing(self) -> EditingConfig:
         return self.config.editing
+
+    @property
+    def overlay(self) -> OverlayConfig:
+        return self.config.overlay
 
     @property
     def pipeline(self) -> PipelineConfig:
