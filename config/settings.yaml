@@ -65,5 +65,10 @@ packaging:
   max_title_length: 50
   hashtags_count: 5
 
+distribution:
+  youtube_client_secrets_path: "config/client_secrets.json"
+  tiktok_cookies_path: "assets/auth/tiktok_cookies.json"
+  schedule_offset_hours: 2
+
 pipeline:
   target_aspect_ratio: "9:16"

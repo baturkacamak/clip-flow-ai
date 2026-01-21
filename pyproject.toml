@@ -26,6 +26,9 @@ sentence-transformers = "^2.2.0"
 pillow = "^10.0.0"
 moviepy = "^1.0.3"
 scikit-image = "^0.22.0"
+google-api-python-client = "^2.100.0"
+google-auth-oauthlib = "^1.0.0"
+playwright = "^1.40.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

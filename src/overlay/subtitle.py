@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Any, Tuple
 
 import numpy as np
 from loguru import logger
@@ -17,6 +17,7 @@ class SubtitleOverlay:
         self.paths = config_manager.paths
         
         # Load font
+        self.font: Any = None
         try:
             self.font = ImageFont.truetype(self.cfg.font_path, self.cfg.font_size)
         except OSError:
@@ -51,9 +52,9 @@ class SubtitleOverlay:
         
         # Memoization cache
         last_state: Tuple[int, int] = (-1, -1)
-        last_frame: Optional[np.array] = None
+        last_frame: Optional[np.ndarray[Any, Any]] = None
         
-        def make_text_frame(t: float) -> np.array:
+        def make_text_frame(t: float) -> np.ndarray[Any, Any]:
             nonlocal last_state, last_frame
             
             # 1. Find active group

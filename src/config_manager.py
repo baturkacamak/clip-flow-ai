@@ -73,6 +73,11 @@ class PackagingConfig(BaseModel):
     max_title_length: int = Field(default=50)
     hashtags_count: int = Field(default=5)
 
+class DistributionConfig(BaseModel):
+    youtube_client_secrets_path: str = Field(default="config/client_secrets.json")
+    tiktok_cookies_path: str = Field(default="assets/auth/tiktok_cookies.json")
+    schedule_offset_hours: int = Field(default=2)
+
 class PipelineConfig(BaseModel):
     target_aspect_ratio: str = Field(default="9:16")
 
@@ -86,6 +91,7 @@ class AppConfig(BaseModel):
     editing: EditingConfig
     overlay: OverlayConfig
     packaging: PackagingConfig
+    distribution: DistributionConfig
     pipeline: PipelineConfig
 
 class ConfigManager:
@@ -140,6 +146,10 @@ class ConfigManager:
     @property
     def packaging(self) -> PackagingConfig:
         return self.config.packaging
+
+    @property
+    def distribution(self) -> DistributionConfig:
+        return self.config.distribution
 
     @property
     def pipeline(self) -> PipelineConfig:

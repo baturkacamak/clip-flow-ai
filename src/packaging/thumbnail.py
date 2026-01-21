@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from pathlib import Path
+from typing import Any
 from PIL import Image, ImageDraw, ImageFont
 from loguru import logger
 from src.config_manager import ConfigManager
@@ -9,6 +10,7 @@ from src.intelligence.models import ViralClip
 class ThumbnailMaker:
     def __init__(self, config_manager: ConfigManager):
         self.cfg = config_manager.packaging
+        self.font: Any = None
         try:
             # Using a larger font size for thumbnails usually
             self.font = ImageFont.truetype(self.cfg.thumbnail_font_path, 100)

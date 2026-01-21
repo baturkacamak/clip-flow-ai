@@ -1,5 +1,6 @@
 import sys
 import json
+import argparse
 from pathlib import Path
 from loguru import logger
 from src.config_manager import ConfigManager
@@ -16,6 +17,9 @@ from src.editing.models import RenderPlan, BRollSegment
 from src.overlay.subtitle import SubtitleOverlay
 from src.packaging.generator import MetadataGenerator
 from src.packaging.thumbnail import ThumbnailMaker
+from src.packaging.models import VideoPackage
+from src.distribution.youtube import YouTubeUploader
+from src.distribution.tiktok_browser import TikTokUploader
 
 def get_text_for_range(transcript, start: float, end: float) -> str:
     text = []
@@ -27,6 +31,10 @@ def get_text_for_range(transcript, start: float, end: float) -> str:
     return " ".join(text)
 
 def main():
+    parser = argparse.ArgumentParser(description="AutoReelAI Pipeline")
+    parser.add_argument("--dry-run", action="store_true", help="Simulate uploads without sending data")
+    args = parser.parse_args()
+
     try:
         config_manager = ConfigManager()
     except Exception as e:
@@ -38,7 +46,9 @@ def main():
         level="DEBUG"
     )
     
-    logger.info("Starting AutoReelAI - Part 8: Packaging")
+    logger.info("Starting AutoReelAI - Part 9: Distribution")
+    if args.dry_run:
+        logger.info("DRY RUN MODE ACTIVE")
 
     # 1. Ingestion
     downloader = VideoDownloader(config_manager)
@@ -120,7 +130,6 @@ def main():
                 ))
 
     # 5. Editing & Overlay & Packaging
-    # Output Directory
     output_dir = Path(config_manager.paths.output_dir) / video_id
     output_dir.mkdir(parents=True, exist_ok=True)
     
@@ -128,6 +137,8 @@ def main():
     final_output_path = str(output_dir / "final_with_subs.mp4")
     thumbnail_path = str(output_dir / "thumbnail.jpg")
     metadata_path = str(output_dir / "metadata.json")
+    
+    pkg = None
     
     if crop_results and video_path:
         logger.info("Compositing...")
@@ -146,10 +157,7 @@ def main():
             overlay = SubtitleOverlay(config_manager)
             overlay.overlay_subtitles(clean_output_path, transcript, final_output_path)
             
-            # Packaging
             logger.info("Packaging...")
-            # Use the first clip for metadata context (or aggregate?)
-            # Assuming one clip per render for now based on loop structure
             target_clip = clips[0] 
             
             meta_gen = MetadataGenerator(config_manager)
@@ -158,11 +166,28 @@ def main():
             thumb_maker = ThumbnailMaker(config_manager)
             thumb_maker.generate_thumbnail(final_output_path, target_clip, thumbnail_path)
             
-            # Save Metadata
             with open(metadata_path, "w") as f:
                 f.write(pkg.model_dump_json(indent=2))
                 
             logger.success(f"Package created at {output_dir}")
+
+    # 6. Distribution
+    if pkg and Path(final_output_path).exists():
+        logger.info("Starting Distribution...")
+        
+        if args.dry_run:
+            logger.info(f"[DRY RUN] Would upload to YouTube: {pkg.title}")
+            logger.info(f"[DRY RUN] Would upload to TikTok: {pkg.title}")
+        else:
+            # YouTube
+            if "youtube" in pkg.platforms:
+                yt_uploader = YouTubeUploader(config_manager)
+                yt_uploader.upload(pkg)
+            
+            # TikTok
+            if "tiktok" in pkg.platforms:
+                tt_uploader = TikTokUploader(config_manager)
+                tt_uploader.upload(pkg)
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, cast
 
 import numpy as np
 from loguru import logger
@@ -25,7 +25,7 @@ class VideoCompositor:
         # frames[idx] should match t closely if fps matches.
         return crop_frames[idx]
 
-    def render(self, plan: RenderPlan):
+    def render(self, plan: RenderPlan) -> None:
         """
         Composites and renders the final video.
         """
@@ -60,7 +60,7 @@ class VideoCompositor:
             
             def crop_filter(
                 get_frame: Any, t: float, fps: float = fps, frames_data: List[Any] = frames_data
-            ) -> np.ndarray:
+            ) -> np.ndarray[Any, Any]:
                 frame = get_frame(t)
                 
                 # Optimize:
@@ -78,7 +78,7 @@ class VideoCompositor:
                 x = max(0, min(x, W - w))
                 y = max(0, min(y, H - h))
                 
-                return frame[y:y+h, x:x+w]
+                return cast(np.ndarray[Any, Any], frame[y:y+h, x:x+w])
 
             cropped_clip = src_clip.fl(crop_filter, apply_to=['mask'])
             
@@ -93,7 +93,7 @@ class VideoCompositor:
             # It should be the FULL frame (uncropped) blurred.
             # src_clip is full frame.
             
-            def blur_filter(get_frame: Any, t: float) -> np.ndarray:
+            def blur_filter(get_frame: Any, t: float) -> np.ndarray[Any, Any]:
                 frame = get_frame(t)
                 return create_blurred_background(frame, self.cfg.blur_radius, self.cfg.output_resolution)
             
