@@ -27,6 +27,8 @@ def mock_config_file(tmp_path):
         "intelligence": {
             "llm_provider": "openai"
         },
+        "vision": {},
+        "retrieval": {},
         "pipeline": {
             "target_aspect_ratio": "9:16"
         }
@@ -61,6 +63,8 @@ def test_default_values(tmp_path):
         "downloader": {}, 
         "transcription": {}, 
         "intelligence": {}, 
+        "vision": {},
+        "retrieval": {},
         "pipeline": {}
     }
     config_path = tmp_path / "minimal.yaml"
