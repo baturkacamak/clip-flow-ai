@@ -2,8 +2,8 @@
 import numpy as np
 import pytest
 
-from src.retrieval.indexer import LibraryIndexer
-from src.retrieval.matcher import VisualMatcher
+from python_core.retrieval.indexer import LibraryIndexer
+from python_core.retrieval.matcher import VisualMatcher
 
 
 @pytest.fixture

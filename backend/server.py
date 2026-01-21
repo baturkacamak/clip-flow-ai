@@ -4,24 +4,31 @@ import asyncio
 import logging
 import threading
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-# --- Project Path Setup ---
-sys.path.append(str(Path(__file__).parent.parent))
+# --- Architecture Fix: Add Root to sys.path ---
+# Current file: /backend/server.py
+# Root dir: /
+# Python Core: /python_core
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR))
 
-# Import the actual pipeline
+# Import the actual pipeline logic from python_core
 try:
-    from src.pipeline import PipelineManager
-except ImportError:
-    # Mock for testing
+    from python_core.pipeline import PipelineManager
+    from python_core.config_manager import ConfigManager
+except ImportError as e:
+    print(f"WARNING: Could not import python_core modules. Error: {e}")
+    # Mock implementation for UI testing if core is missing
     class PipelineManager:
-        def __init__(self, config_manager, keep_temp=False):
-            pass
-        def run(self, **kwargs):
+        def __init__(self, config, keep_temp=False): pass
+        def run(self, **kwargs): 
             logging.info(f"Mock Pipeline Running: {kwargs}")
+            import time
+            time.sleep(2)
 
 # --- App Configuration ---
 app = FastAPI(title="AutoReelAI Backend")
@@ -75,11 +82,13 @@ class JobConfig(BaseModel):
 def run_pipeline_thread(config: dict):
     logging.info(f"--- Starting Job: Mode={config.get('mode')} ---")
     try:
-        # Mock ConfigManager for now or use real one
-        from src.config_manager import ConfigManager
-        cm = ConfigManager()
-        # Override config logic here if needed
-        
+        # Load ConfigManager (usually loads from settings.yaml)
+        # We might want to override settings here based on UI input if ConfigManager supports it
+        try:
+            cm = ConfigManager()
+        except:
+            cm = None 
+
         pipeline = PipelineManager(cm, keep_temp=True)
         pipeline.run(
             url=config.get('url'),
@@ -90,6 +99,8 @@ def run_pipeline_thread(config: dict):
         )
     except Exception as e:
         logging.error(f"PIPELINE ERROR: {e}")
+        import traceback
+        logging.error(traceback.format_exc())
 
 @app.post("/start-job")
 async def start_job(config: JobConfig):
@@ -119,3 +130,8 @@ async def get_library():
         return {"files": []}
     files = [f.name for f in library_path.iterdir() if f.is_file()]
     return {"files": files}
+
+if __name__ == "__main__":
+    import uvicorn
+    # 0.0.0.0 allows access from other containers/machines if needed
+    uvicorn.run(app, host="127.0.0.1", port=8000)

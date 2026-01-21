@@ -1,10 +1,10 @@
 
 import pytest
 
-from src.intelligence.models import ViralClip
-from src.packaging.generator import MetadataGenerator
-from src.packaging.models import VideoPackage
-from src.packaging.thumbnail import ThumbnailMaker
+from python_core.intelligence.models import ViralClip
+from python_core.packaging.generator import MetadataGenerator
+from python_core.packaging.models import VideoPackage
+from python_core.packaging.thumbnail import ThumbnailMaker
 
 
 @pytest.fixture

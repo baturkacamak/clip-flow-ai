@@ -1,10 +1,10 @@
 
 import pytest
 
-from src.audio.separator import AudioSeparator
-from src.editing.ffmpeg_compositor import FFmpegCompositor
-from src.editing.models import RenderPlan
-from src.vision.models import ClipCropData, FrameCrop
+from python_core.audio.separator import AudioSeparator
+from python_core.editing.ffmpeg_compositor import FFmpegCompositor
+from python_core.editing.models import RenderPlan
+from python_core.vision.models import ClipCropData, FrameCrop
 
 
 @pytest.fixture

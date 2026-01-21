@@ -1,8 +1,8 @@
 
 import pytest
 
-from src.pipeline import PipelineManager
-from src.vision.models import ClipCropData, FrameCrop
+from python_core.pipeline import PipelineManager
+from python_core.vision.models import ClipCropData, FrameCrop
 
 
 @pytest.fixture

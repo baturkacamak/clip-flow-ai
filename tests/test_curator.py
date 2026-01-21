@@ -1,8 +1,8 @@
 import pytest
 
-from src.intelligence.curator import ContentCurator
-from src.intelligence.models import ViralClip
-from src.transcription.models import Segment, TranscriptionResult
+from python_core.intelligence.curator import ContentCurator
+from python_core.intelligence.models import ViralClip
+from python_core.transcription.models import Segment, TranscriptionResult
 
 
 @pytest.fixture

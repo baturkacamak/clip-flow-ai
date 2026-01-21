@@ -1,11 +1,11 @@
 import pytest
 from unittest.mock import MagicMock
 from pathlib import Path
-from src.modes.story_builder import StoryBuilder
-from src.config_manager import ConfigManager
-from src.transcription.models import TranscriptionResult, Segment
-from src.editing.models import RenderPlan, BRollSegment
-from src.pipeline import PipelineManager
+from python_core.modes.story_builder import StoryBuilder
+from python_core.config_manager import ConfigManager
+from python_core.transcription.models import TranscriptionResult, Segment
+from python_core.editing.models import RenderPlan, BRollSegment
+from python_core.pipeline import PipelineManager
 
 @pytest.fixture
 def mock_config_manager(tmp_path):

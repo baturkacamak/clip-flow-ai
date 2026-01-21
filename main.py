@@ -2,22 +2,22 @@ import argparse
 import sys
 from pathlib import Path
 
-from src.config_manager import ConfigManager
-from src.distribution.tiktok_browser import TikTokUploader
-from src.distribution.youtube import YouTubeUploader
-from src.editing.compositor import VideoCompositor
-from src.editing.models import BRollSegment, RenderPlan
-from src.ingestion.downloader import VideoDownloader
-from src.intelligence.curator import ContentCurator
-from src.intelligence.models import ViralClip
-from src.overlay.subtitle import SubtitleOverlay
-from src.packaging.generator import MetadataGenerator
-from src.packaging.thumbnail import ThumbnailMaker
-from src.retrieval.indexer import LibraryIndexer
-from src.retrieval.matcher import VisualMatcher
-from src.transcription.engine import AudioTranscriber
-from src.utils.logger import setup_logger
-from src.vision.cropper import SmartCropper
+from python_core.config_manager import ConfigManager
+from python_core.distribution.tiktok_browser import TikTokUploader
+from python_core.distribution.youtube import YouTubeUploader
+from python_core.editing.compositor import VideoCompositor
+from python_core.editing.models import BRollSegment, RenderPlan
+from python_core.ingestion.downloader import VideoDownloader
+from python_core.intelligence.curator import ContentCurator
+from python_core.intelligence.models import ViralClip
+from python_core.overlay.subtitle import SubtitleOverlay
+from python_core.packaging.generator import MetadataGenerator
+from python_core.packaging.thumbnail import ThumbnailMaker
+from python_core.retrieval.indexer import LibraryIndexer
+from python_core.retrieval.matcher import VisualMatcher
+from python_core.transcription.engine import AudioTranscriber
+from python_core.utils.logger import setup_logger
+from python_core.vision.cropper import SmartCropper
 
 
 def get_text_for_range(transcript, start: float, end: float) -> str:

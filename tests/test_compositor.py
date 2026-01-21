@@ -2,10 +2,10 @@
 import numpy as np
 import pytest
 
-from src.editing import effects
-from src.editing.compositor import VideoCompositor
-from src.editing.models import RenderPlan
-from src.vision.models import ClipCropData, FrameCrop
+from python_core.editing import effects
+from python_core.editing.compositor import VideoCompositor
+from python_core.editing.models import RenderPlan
+from python_core.vision.models import ClipCropData, FrameCrop
 
 
 @pytest.fixture

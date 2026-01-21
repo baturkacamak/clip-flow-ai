@@ -1,9 +1,9 @@
 
 import pytest
 
-from src.distribution.tiktok_browser import TikTokUploader
-from src.distribution.youtube import YouTubeUploader
-from src.packaging.models import VideoPackage
+from python_core.distribution.tiktok_browser import TikTokUploader
+from python_core.distribution.youtube import YouTubeUploader
+from python_core.packaging.models import VideoPackage
 
 
 @pytest.fixture

@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-from src.intelligence.models import ViralClip
-from src.vision.cropper import SmartCropper
-from src.vision.stabilizer import Stabilizer
+from python_core.intelligence.models import ViralClip
+from python_core.vision.cropper import SmartCropper
+from python_core.vision.stabilizer import Stabilizer
 
 
 def test_stabilizer_ema():

@@ -1,7 +1,7 @@
 import pytest
 import yaml
 
-from src.config_manager import AppConfig, ConfigManager
+from python_core.config_manager import AppConfig, ConfigManager
 
 
 @pytest.fixture

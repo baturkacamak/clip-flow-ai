@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from src.ingestion.downloader import VideoDownloader
+from python_core.ingestion.downloader import VideoDownloader
 
 
 @pytest.fixture

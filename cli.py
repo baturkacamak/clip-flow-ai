@@ -1,10 +1,19 @@
 import argparse
 import sys
+import os
+from pathlib import Path
 
-from src.config_manager import ConfigManager
-from src.pipeline import PipelineManager
-from src.utils.logger import setup_logger
+# Add current directory to path so python_core is importable
+sys.path.append(str(Path(__file__).parent))
 
+try:
+    from python_core.config_manager import ConfigManager
+    from python_core.pipeline import PipelineManager
+    from python_core.utils.logger import setup_logger
+except ImportError as e:
+    print(f"Critical Configuration Error: {e}")
+    print("Did you run 'python refactor.py' to restructure the project?")
+    sys.exit(1)
 
 def main():
     parser = argparse.ArgumentParser(description="AutoReelAI CLI")
@@ -49,16 +58,15 @@ def main():
             sys.exit(1)
         
         if args.async_mode:
-            # We assume worker handles mode/audio logic update too, but for now just viral supported in async?
-            # Or we update task signature. 
-            # Given constraints, let's assume async supports basic viral for now or we update it.
-            # I will pass kwargs to task if possible, or just log not supported.
-            from src.worker import process_video_task
-            if args.mode != "viral":
-                print("Async mode currently only supports viral mode.")
-                sys.exit(1)
-            task = process_video_task.delay(args.url, topic=args.topic, upload=should_upload)
-            print(f"Task dispatched: {task.id}")
+            try:
+                from python_core.worker import process_video_task
+                if args.mode != "viral":
+                    print("Async mode currently only supports viral mode.")
+                    sys.exit(1)
+                task = process_video_task.delay(args.url, topic=args.topic, upload=should_upload)
+                print(f"Task dispatched: {task.id}")
+            except ImportError:
+                print("Worker module not found in python_core.")
         else:
             pipeline = PipelineManager(config, keep_temp=args.keep_temp)
             pipeline.run(

@@ -1,9 +1,9 @@
 
 import pytest
 
-from src.overlay.subtitle import SubtitleOverlay
-from src.transcription.models import Segment, TranscriptionResult, Word
-from src.utils.text_utils import chunk_words
+from python_core.overlay.subtitle import SubtitleOverlay
+from python_core.transcription.models import Segment, TranscriptionResult, Word
+from python_core.utils.text_utils import chunk_words
 
 
 @pytest.fixture
