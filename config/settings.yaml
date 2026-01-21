@@ -1,0 +1,20 @@
+paths:
+  base_dir: "."
+  workspace_dir: "assets/workspace"
+  output_dir: "outputs"
+  log_dir: "logs"
+  cookies_file: "config/cookies.txt"
+  history_file: "assets/workspace/download_history.json"
+
+downloader:
+  resolution: "1080"
+  min_resolution: "720"
+  video_format: "mp4"
+  separate_audio: true
+  audio_format: "wav"
+  check_duplicates: true
+  retries: 3
+
+pipeline:
+  target_aspect_ratio: "9:16"
+  llm_model: "gpt-4"
