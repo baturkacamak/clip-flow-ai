@@ -11,8 +11,14 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True)
     
     # Process Command
-    process_parser = subparsers.add_parser("process", help="Process a video URL")
-    process_parser.add_argument("url", help="YouTube URL")
+    process_parser = subparsers.add_parser("process", help="Process a video URL or Audio file")
+    
+    # Inputs
+    process_parser.add_argument("url", nargs="?", help="YouTube URL (Required for viral mode)")
+    process_parser.add_argument("--mode", choices=["viral", "story"], default="viral", help="Processing mode")
+    process_parser.add_argument("--audio", help="Path to input audio (Required for story mode)")
+    
+    # Options
     process_parser.add_argument("--topic", help="Focus topic for curation")
     process_parser.add_argument("--upload", action="store_true", help="Upload to platforms")
     process_parser.add_argument("--dry-run", action="store_true", help="Skip actual upload")
@@ -34,13 +40,35 @@ def main():
     if args.command == "process":
         should_upload = args.upload and not args.dry_run
         
+        # Validation
+        if args.mode == "viral" and not args.url:
+            print("Error: URL is required for viral mode.")
+            sys.exit(1)
+        if args.mode == "story" and not args.audio:
+            print("Error: --audio path is required for story mode.")
+            sys.exit(1)
+        
         if args.async_mode:
+            # We assume worker handles mode/audio logic update too, but for now just viral supported in async?
+            # Or we update task signature. 
+            # Given constraints, let's assume async supports basic viral for now or we update it.
+            # I will pass kwargs to task if possible, or just log not supported.
             from src.worker import process_video_task
+            if args.mode != "viral":
+                print("Async mode currently only supports viral mode.")
+                sys.exit(1)
             task = process_video_task.delay(args.url, topic=args.topic, upload=should_upload)
             print(f"Task dispatched: {task.id}")
         else:
             pipeline = PipelineManager(config, keep_temp=args.keep_temp)
-            pipeline.run(args.url, topic=args.topic, upload=should_upload, platforms=args.platform)
+            pipeline.run(
+                url=args.url,
+                topic=args.topic,
+                upload=should_upload,
+                platforms=args.platform,
+                mode=args.mode,
+                audio_path=args.audio
+            )
         
         if args.dry_run and args.upload:
             print("[DRY RUN] Skipping actual upload.")
