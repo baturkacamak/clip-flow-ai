@@ -48,6 +48,12 @@ class VisionConfig(BaseModel):
     vertical_crop_ratio: float = Field(default=9/16)
     debug_preview: bool = Field(default=True)
 
+class RetrievalConfig(BaseModel):
+    b_roll_library_path: str = Field(default="assets/b_roll")
+    clip_model_name: str = Field(default="clip-ViT-B-32")
+    similarity_threshold: float = Field(default=0.25)
+    deduplication_window: int = Field(default=5)
+
 class PipelineConfig(BaseModel):
     target_aspect_ratio: str = Field(default="9:16")
 
@@ -57,6 +63,7 @@ class AppConfig(BaseModel):
     transcription: TranscriptionConfig
     intelligence: IntelligenceConfig
     vision: VisionConfig
+    retrieval: RetrievalConfig
     pipeline: PipelineConfig
 
 class ConfigManager:
@@ -95,6 +102,10 @@ class ConfigManager:
     @property
     def vision(self) -> VisionConfig:
         return self.config.vision
+
+    @property
+    def retrieval(self) -> RetrievalConfig:
+        return self.config.retrieval
 
     @property
     def pipeline(self) -> PipelineConfig:

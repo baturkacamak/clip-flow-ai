@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Tuple, Optional, Any
+from typing import Any, List, Optional
 
 import cv2
 import mediapipe as mp
@@ -102,7 +102,8 @@ class SmartCropper:
             if results.detections:
                 # Find dominant face
                 def get_face_area(d: Any) -> float:
-                    return float(d.location_data.relative_bounding_box.width * d.location_data.relative_bounding_box.height)
+                    rel_box = d.location_data.relative_bounding_box
+                    return float(rel_box.width * rel_box.height)
 
                 best_detection = max(results.detections, key=get_face_area)
                 bbox = best_detection.location_data.relative_bounding_box

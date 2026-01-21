@@ -5,10 +5,23 @@ from src.config_manager import ConfigManager
 from src.ingestion.downloader import VideoDownloader
 from src.intelligence.curator import ContentCurator
 from src.intelligence.models import ViralClip
+from src.retrieval.indexer import LibraryIndexer
+from src.retrieval.matcher import VisualMatcher
 from src.transcription.engine import AudioTranscriber
 from src.utils.logger import setup_logger
 from src.vision.cropper import SmartCropper
 
+
+def get_text_for_range(transcript, start: float, end: float) -> str:
+    """Extracts text from transcript for a given time range."""
+    text = []
+    for seg in transcript.segments:
+        # Check overlap
+        seg_start = seg.start
+        seg_end = seg.end
+        if max(start, seg_start) < min(end, seg_end):
+            text.append(seg.text)
+    return " ".join(text)
 
 def main():
     # 1. Initialize Configuration
@@ -24,7 +37,7 @@ def main():
         level="DEBUG"
     )
     
-    logger.info("Starting AutoReelAI - Part 4: Visual Intelligence")
+    logger.info("Starting AutoReelAI - Part 5: Semantic Retrieval")
 
     # 3. Ingestion Phase
     downloader = VideoDownloader(config_manager)
@@ -43,7 +56,6 @@ def main():
         video_id = download_result.get('id')
     else:
         workspace = Path(config_manager.paths.workspace_dir)
-        # Search for files
         vid_files = list(workspace.glob(f"*{video_id}*.mp4"))
         aud_files = list(workspace.glob(f"*{video_id}*.wav"))
         
@@ -73,8 +85,7 @@ def main():
         clips = curation_result.clips
         
         if not clips:
-            logger.warning("No clips found via LLM. Using MOCK clip for Part 4 testing.")
-            # Mock clip for Big Buck Bunny (approx 10s to 25s)
+            logger.warning("No clips found via LLM. Using MOCK clip for testing.")
             clips = [
                 ViralClip(
                     start_time=10.0,
@@ -86,15 +97,33 @@ def main():
                 )
             ]
 
-    # 6. Vision Phase (Smart Cropping)
+    # 6. Retrieval Phase (Indexing & Matching)
+    logger.info("Starting B-Roll Retrieval Engine...")
+    indexer = LibraryIndexer(config_manager)
+    indexer.index_library() # Scan assets/b_roll
+    
+    matcher = VisualMatcher(config_manager, indexer)
+    
+    # 7. Vision Phase & Integration
     if clips and video_path:
-        logger.info("Starting Smart Cropping...")
+        logger.info("Starting Visual Processing...")
         cropper = SmartCropper(config_manager)
         crop_results = cropper.process_clips(video_path, clips, video_id)
         
-        logger.success(f"Generated crop data for {len(crop_results)} clips.")
-        for res in crop_results:
-            logger.info(f"Clip {res.clip_id}: {len(res.frames)} frames processed.")
+        for i, _ in enumerate(crop_results):
+            # Check for B-Roll for this clip
+            clip = clips[i]
+            
+            # Get text context
+            clip_text = get_text_for_range(transcript, clip.start_time, clip.end_time) if transcript else clip.reasoning
+            
+            # Find B-Roll
+            b_roll_path = matcher.find_match(clip_text)
+            
+            if b_roll_path:
+                logger.success(f"Clip {i}: Found B-Roll -> {b_roll_path}")
+            else:
+                logger.info(f"Clip {i}: No B-Roll match. Using Face Track.")
 
 if __name__ == "__main__":
     main()

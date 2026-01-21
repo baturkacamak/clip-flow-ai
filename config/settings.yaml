@@ -17,26 +17,32 @@ downloader:
 
 transcription:
   model_size: "large-v2"
-  compute_type: "float16" # or "int8" for CPU
-  device: "auto" # auto, cuda, mps, cpu
-  language: "en" # or "auto"
+  compute_type: "float16"
+  device: "auto"
+  language: "en"
   beam_size: 5
   vad_filter: true
   min_silence_duration_ms: 500
   enable_diarization: false
 
 intelligence:
-  llm_provider: "openai" # openai or anthropic
-  model_name: "gpt-4-0125-preview" # or claude-3-sonnet-20240229
+  llm_provider: "openai"
+  model_name: "gpt-4-0125-preview"
   virality_threshold: 75
   chunk_duration_minutes: 10
-  focus_topic: null # Optional filter
+  focus_topic: null
 
 vision:
   face_detection_confidence: 0.7
-  stabilization_factor: 0.1 # Alpha for EMA (0.1 = smooth, 0.9 = responsive)
-  vertical_crop_ratio: 0.5625 # 9/16 = 0.5625
+  stabilization_factor: 0.1
+  vertical_crop_ratio: 0.5625
   debug_preview: true
+
+retrieval:
+  b_roll_library_path: "assets/b_roll"
+  clip_model_name: "clip-ViT-B-32"
+  similarity_threshold: 0.25
+  deduplication_window: 5
 
 pipeline:
   target_aspect_ratio: "9:16"
