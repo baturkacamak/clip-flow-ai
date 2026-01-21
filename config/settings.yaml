@@ -44,5 +44,12 @@ retrieval:
   similarity_threshold: 0.25
   deduplication_window: 5
 
+editing:
+  output_resolution: [1080, 1920]
+  blur_radius: 21
+  music_volume: 0.1
+  fade_in_duration: 0.5
+  transition_duration: 0.2
+
 pipeline:
   target_aspect_ratio: "9:16"

@@ -1,16 +1,18 @@
 import sys
 from pathlib import Path
-
+from typing import List
+from loguru import logger
 from src.config_manager import ConfigManager
+from src.utils.logger import setup_logger
 from src.ingestion.downloader import VideoDownloader
+from src.transcription.engine import AudioTranscriber
 from src.intelligence.curator import ContentCurator
-from src.intelligence.models import ViralClip
+from src.intelligence.models import ViralClip, CurationResult
+from src.vision.cropper import SmartCropper
 from src.retrieval.indexer import LibraryIndexer
 from src.retrieval.matcher import VisualMatcher
-from src.transcription.engine import AudioTranscriber
-from src.utils.logger import setup_logger
-from src.vision.cropper import SmartCropper
-
+from src.editing.compositor import VideoCompositor
+from src.editing.models import RenderPlan, BRollSegment
 
 def get_text_for_range(transcript, start: float, end: float) -> str:
     """Extracts text from transcript for a given time range."""
@@ -37,7 +39,7 @@ def main():
         level="DEBUG"
     )
     
-    logger.info("Starting AutoReelAI - Part 5: Semantic Retrieval")
+    logger.info("Starting AutoReelAI - Part 6: Compositing")
 
     # 3. Ingestion Phase
     downloader = VideoDownloader(config_manager)
@@ -97,21 +99,20 @@ def main():
                 )
             ]
 
-    # 6. Retrieval Phase (Indexing & Matching)
-    logger.info("Starting B-Roll Retrieval Engine...")
+    # 6. Retrieval & Vision Phases
+    logger.info("Starting Visual Intelligence & Retrieval...")
     indexer = LibraryIndexer(config_manager)
-    indexer.index_library() # Scan assets/b_roll
-    
+    indexer.index_library()
     matcher = VisualMatcher(config_manager, indexer)
+    cropper = SmartCropper(config_manager)
     
-    # 7. Vision Phase & Integration
+    crop_results = []
+    b_roll_segments: List[BRollSegment] = []
+    
     if clips and video_path:
-        logger.info("Starting Visual Processing...")
-        cropper = SmartCropper(config_manager)
         crop_results = cropper.process_clips(video_path, clips, video_id)
         
         for i, _ in enumerate(crop_results):
-            # Check for B-Roll for this clip
             clip = clips[i]
             
             # Get text context
@@ -122,8 +123,31 @@ def main():
             
             if b_roll_path:
                 logger.success(f"Clip {i}: Found B-Roll -> {b_roll_path}")
+                # Use B-Roll for the entire clip duration for now
+                b_roll_segments.append(BRollSegment(
+                    start=clip.start_time,
+                    end=clip.end_time,
+                    video_path=b_roll_path
+                ))
             else:
                 logger.info(f"Clip {i}: No B-Roll match. Using Face Track.")
+
+    # 7. Compositing Phase
+    if crop_results and video_path:
+        logger.info("Starting Compositing...")
+        compositor = VideoCompositor(config_manager)
+        
+        output_file = str(Path(config_manager.paths.output_dir) / "clean_output.mp4")
+        
+        plan = RenderPlan(
+            source_video_path=video_path,
+            source_audio_path=audio_path,
+            clip_crop_data=crop_results,
+            b_roll_segments=b_roll_segments,
+            output_path=output_file
+        )
+        
+        compositor.render(plan)
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,8 @@
 import os
 from pathlib import Path
-from typing import Optional
-
 import yaml
 from pydantic import BaseModel, Field
-
+from typing import Optional, List, Tuple
 
 class PathsConfig(BaseModel):
     base_dir: str = Field(default=".")
@@ -54,6 +52,13 @@ class RetrievalConfig(BaseModel):
     similarity_threshold: float = Field(default=0.25)
     deduplication_window: int = Field(default=5)
 
+class EditingConfig(BaseModel):
+    output_resolution: Tuple[int, int] = Field(default=(1080, 1920))
+    blur_radius: int = Field(default=21)
+    music_volume: float = Field(default=0.1)
+    fade_in_duration: float = Field(default=0.5)
+    transition_duration: float = Field(default=0.2)
+
 class PipelineConfig(BaseModel):
     target_aspect_ratio: str = Field(default="9:16")
 
@@ -64,6 +69,7 @@ class AppConfig(BaseModel):
     intelligence: IntelligenceConfig
     vision: VisionConfig
     retrieval: RetrievalConfig
+    editing: EditingConfig
     pipeline: PipelineConfig
 
 class ConfigManager:
@@ -106,6 +112,10 @@ class ConfigManager:
     @property
     def retrieval(self) -> RetrievalConfig:
         return self.config.retrieval
+
+    @property
+    def editing(self) -> EditingConfig:
+        return self.config.editing
 
     @property
     def pipeline(self) -> PipelineConfig:
