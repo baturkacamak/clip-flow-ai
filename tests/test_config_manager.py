@@ -16,26 +16,16 @@ def mock_config_file(tmp_path):
             "cookies_file": None,
             "history_file": str(tmp_path / "history.json"),
         },
-        "downloader": {
-            "resolution": "1080",
-            "min_resolution": "720",
-            "check_duplicates": False
-        },
-        "transcription": {
-            "model_size": "large-v2"
-        },
-        "intelligence": {
-            "llm_provider": "openai"
-        },
+        "downloader": {"resolution": "1080", "min_resolution": "720", "check_duplicates": False},
+        "transcription": {"model_size": "large-v2"},
+        "intelligence": {"llm_provider": "openai"},
         "vision": {},
         "retrieval": {},
         "editing": {},
         "overlay": {},
         "packaging": {},
         "distribution": {},
-        "pipeline": {
-            "target_aspect_ratio": "9:16"
-        }
+        "pipeline": {"target_aspect_ratio": "9:16"},
     }
 
     config_path = tmp_path / "test_settings.yaml"
@@ -63,17 +53,17 @@ def test_default_values(tmp_path):
     """Test that default values are used when optional fields are missing (if applicable)."""
     # Create minimal config
     config_data = {
-        "paths": {}, 
-        "downloader": {}, 
-        "transcription": {}, 
-        "intelligence": {}, 
+        "paths": {},
+        "downloader": {},
+        "transcription": {},
+        "intelligence": {},
         "vision": {},
         "retrieval": {},
         "editing": {},
         "overlay": {},
         "packaging": {},
         "distribution": {},
-        "pipeline": {}
+        "pipeline": {},
     }
     config_path = tmp_path / "minimal.yaml"
     with open(config_path, "w") as f:

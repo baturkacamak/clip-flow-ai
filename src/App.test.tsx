@@ -29,7 +29,7 @@ describe('App Component', () => {
     render(<App />);
     const storyTab = screen.getByText('Story Mode');
     fireEvent.click(storyTab);
-    
+
     expect(screen.getByText('Select Voiceover')).toBeInTheDocument();
     expect(screen.getByText('Select Audio')).toBeInTheDocument();
   });
@@ -38,13 +38,13 @@ describe('App Component', () => {
     render(<App />);
     // Switch to Story Mode
     fireEvent.click(screen.getByText('Story Mode'));
-    
+
     // Mock file selection
     mockOpenFile.mockResolvedValue('/path/to/audio.mp3');
-    
+
     const selectBtn = screen.getByText('Select Audio');
     fireEvent.click(selectBtn);
-    
+
     await waitFor(() => {
       // Check if input has value (we disabled it so we check value prop logic indirectly or assume state update)
       // Material UI TextField input is found via label usually.
@@ -57,13 +57,13 @@ describe('App Component', () => {
     render(<App />);
     // Mock success response
     mockedAxios.post.mockResolvedValue({ data: { status: 'started' } });
-    
+
     const urlInput = screen.getByLabelText(/YouTube Video URL/i);
     fireEvent.change(urlInput, { target: { value: 'https://youtube.com/test' } });
-    
+
     const startBtn = screen.getByText('START PIPELINE');
     fireEvent.click(startBtn);
-    
+
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
         'http://localhost:8000/start-job',

@@ -14,6 +14,7 @@ class PathsConfig(BaseModel):
     cookies_file: Optional[str] = Field(default="config/cookies.txt")
     history_file: str = Field(default="assets/workspace/download_history.json")
 
+
 class DownloaderConfig(BaseModel):
     resolution: str = Field(default="1080")
     min_resolution: str = Field(default="720")
@@ -22,6 +23,7 @@ class DownloaderConfig(BaseModel):
     audio_format: str = Field(default="wav")
     check_duplicates: bool = Field(default=True)
     retries: int = Field(default=3)
+
 
 class TranscriptionConfig(BaseModel):
     model_size: str = Field(default="large-v2")
@@ -33,6 +35,7 @@ class TranscriptionConfig(BaseModel):
     min_silence_duration_ms: int = Field(default=500)
     enable_diarization: bool = Field(default=False)
 
+
 class IntelligenceConfig(BaseModel):
     llm_provider: str = Field(default="openai")
     model_name: str = Field(default="gpt-4-0125-preview")
@@ -42,11 +45,13 @@ class IntelligenceConfig(BaseModel):
     openai_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY"))
     anthropic_api_key: Optional[str] = Field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY"))
 
+
 class VisionConfig(BaseModel):
     face_detection_confidence: float = Field(default=0.7)
     stabilization_factor: float = Field(default=0.1)
-    vertical_crop_ratio: float = Field(default=9/16)
+    vertical_crop_ratio: float = Field(default=9 / 16)
     debug_preview: bool = Field(default=True)
+
 
 class RetrievalConfig(BaseModel):
     b_roll_library_path: str = Field(default="assets/b_roll")
@@ -54,12 +59,14 @@ class RetrievalConfig(BaseModel):
     similarity_threshold: float = Field(default=0.25)
     deduplication_window: int = Field(default=5)
 
+
 class EditingConfig(BaseModel):
     output_resolution: Tuple[int, int] = Field(default=(1080, 1920))
     blur_radius: int = Field(default=21)
     music_volume: float = Field(default=0.1)
     fade_in_duration: float = Field(default=0.5)
     transition_duration: float = Field(default=0.2)
+
 
 class OverlayConfig(BaseModel):
     font_path: str = Field(default="assets/fonts/TheBoldFont.ttf")
@@ -70,18 +77,22 @@ class OverlayConfig(BaseModel):
     max_words_per_line: int = Field(default=3)
     vertical_position: float = Field(default=0.7)
 
+
 class PackagingConfig(BaseModel):
     thumbnail_font_path: str = Field(default="assets/fonts/TheBoldFont.ttf")
     max_title_length: int = Field(default=50)
     hashtags_count: int = Field(default=5)
+
 
 class DistributionConfig(BaseModel):
     youtube_client_secrets_path: str = Field(default="config/client_secrets.json")
     tiktok_cookies_path: str = Field(default="assets/auth/tiktok_cookies.json")
     schedule_offset_hours: int = Field(default=2)
 
+
 class PipelineConfig(BaseModel):
     target_aspect_ratio: str = Field(default="9:16")
+
 
 class AppConfig(BaseModel):
     paths: PathsConfig
@@ -96,10 +107,12 @@ class AppConfig(BaseModel):
     distribution: DistributionConfig
     pipeline: PipelineConfig
 
+
 class ConfigManager:
     """
     Manages loading and validation of application configuration.
     """
+
     def __init__(self, config_path: str = "config/settings.yaml"):
         self.config_path = Path(config_path)
         self.config: AppConfig = self._load_config()

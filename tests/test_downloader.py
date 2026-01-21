@@ -55,7 +55,7 @@ def test_duplicate_check(mock_config_manager):
 
 def test_download_mocked(mocker, mock_config_manager):
     """Test the download flow with mocked yt-dlp."""
-    mock_ydl = mocker.patch("src.ingestion.downloader.yt_dlp.YoutubeDL")
+    mock_ydl = mocker.patch("python_core.ingestion.downloader.yt_dlp.YoutubeDL")
 
     # Setup mock context manager
     mock_instance = mock_ydl.return_value.__enter__.return_value
@@ -90,7 +90,7 @@ def test_download_mocked(mocker, mock_config_manager):
 
 def test_download_quality_skip(mocker, mock_config_manager):
     """Test that low resolution videos are skipped."""
-    mock_ydl = mocker.patch("src.ingestion.downloader.yt_dlp.YoutubeDL")
+    mock_ydl = mocker.patch("python_core.ingestion.downloader.yt_dlp.YoutubeDL")
     mock_instance = mock_ydl.return_value.__enter__.return_value
 
     # Return low resolution info

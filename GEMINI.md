@@ -1,6 +1,6 @@
 # Gemini Context Configuration
 
-<!-- 
+<!--
     This is the master file that you would place in your PROJECT ROOT (renaming it to GEMINI.md).
 -->
 

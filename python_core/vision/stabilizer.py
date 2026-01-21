@@ -5,10 +5,11 @@ class Stabilizer:
     """
     Implements Exponential Moving Average (EMA) to smooth coordinates.
     """
+
     def __init__(self, alpha: float = 0.1):
         """
         Args:
-            alpha: Smoothing factor (0 < alpha <= 1). 
+            alpha: Smoothing factor (0 < alpha <= 1).
                    Lower = smoother (less responsive).
                    Higher = more responsive (jittery).
         """

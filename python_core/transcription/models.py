@@ -20,12 +20,8 @@ class Segment(BaseModel):
     text: str
     speaker: str = Field(default="SPEAKER_00")
     words: List[Word] = Field(default_factory=list)
-    avg_logprob: float = Field(
-        default=0.0, description="Average log probability of the segment"
-    )
-    no_speech_prob: float = Field(
-        default=0.0, description="Probability that this segment is silence"
-    )
+    avg_logprob: float = Field(default=0.0, description="Average log probability of the segment")
+    no_speech_prob: float = Field(default=0.0, description="Probability that this segment is silence")
 
 
 class TranscriptionResult(BaseModel):

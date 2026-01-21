@@ -46,7 +46,7 @@ export default function App() {
   // --- WebSocket Connection ---
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:8000/ws/logs');
-    
+
     ws.onopen = () => console.log('Connected to Log Stream');
     ws.onmessage = (event) => {
       setLogs((prev) => [...prev, event.data]);
@@ -108,8 +108,8 @@ export default function App() {
         <List>
           {['Viral Generator', 'Story Mode', 'Library', 'Settings'].map((text) => (
             <ListItem key={text} disablePadding>
-              <ListItemButton 
-                selected={activeTab === text} 
+              <ListItemButton
+                selected={activeTab === text}
                 onClick={() => setActiveTab(text)}
                 sx={{ '&.Mui-selected': { bgcolor: '#333' } }}
               >
@@ -125,7 +125,7 @@ export default function App() {
 
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, bgcolor: '#121212', color: '#fff', p: 3, display: 'flex', flexDirection: 'column' }}>
-        
+
         {/* Global Settings (Accordions) */}
         <Box sx={{ mb: 2 }}>
           <Accordion sx={{ bgcolor: '#2e2e2e', color: '#fff' }}>
@@ -137,8 +137,8 @@ export default function App() {
               <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
                 <FormControl fullWidth size="small">
                   <InputLabel sx={{ color: '#aaa' }}>LLM Provider</InputLabel>
-                  <Select 
-                    value={config.llm_provider} 
+                  <Select
+                    value={config.llm_provider}
                     label="LLM Provider"
                     onChange={(e) => handleConfigChange('llm_provider', e.target.value)}
                     sx={{ color: '#fff', '.MuiOutlinedInput-notchedOutline': { borderColor: '#555' } }}
@@ -147,8 +147,8 @@ export default function App() {
                     <MenuItem value="anthropic">Anthropic (Claude)</MenuItem>
                   </Select>
                 </FormControl>
-                <TextField 
-                  fullWidth size="small" label="Focus Topic" variant="outlined" 
+                <TextField
+                  fullWidth size="small" label="Focus Topic" variant="outlined"
                   value={config.topic} onChange={(e) => handleConfigChange('topic', e.target.value)}
                   InputLabelProps={{ style: { color: '#aaa' } }}
                   InputProps={{ style: { color: '#fff', borderColor: '#555' } }}
@@ -166,9 +166,9 @@ export default function App() {
                   <Typography gutterBottom>Music Volume</Typography>
                   <Slider value={config.music_vol} max={1.0} step={0.1} onChange={(_, v) => handleConfigChange('music_vol', v)} />
                 </Box>
-                <FormControlLabel 
-                  control={<Switch checked={config.face_track} onChange={(e) => handleConfigChange('face_track', e.target.checked)} />} 
-                  label="Face Tracking" 
+                <FormControlLabel
+                  control={<Switch checked={config.face_track} onChange={(e) => handleConfigChange('face_track', e.target.checked)} />}
+                  label="Face Tracking"
                 />
               </Box>
 
@@ -176,8 +176,8 @@ export default function App() {
               <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                 <FormControl size="small" sx={{ width: 200 }}>
                   <InputLabel sx={{ color: '#aaa' }}>Platform</InputLabel>
-                  <Select 
-                    value={config.platform} 
+                  <Select
+                    value={config.platform}
                     label="Platform"
                     onChange={(e) => handleConfigChange('platform', e.target.value)}
                     sx={{ color: '#fff', '.MuiOutlinedInput-notchedOutline': { borderColor: '#555' } }}
@@ -186,9 +186,9 @@ export default function App() {
                     <MenuItem value="tiktok">TikTok</MenuItem>
                   </Select>
                 </FormControl>
-                <FormControlLabel 
-                  control={<Switch checked={config.dry_run} onChange={(e) => handleConfigChange('dry_run', e.target.checked)} />} 
-                  label="Dry Run (No Upload)" 
+                <FormControlLabel
+                  control={<Switch checked={config.dry_run} onChange={(e) => handleConfigChange('dry_run', e.target.checked)} />}
+                  label="Dry Run (No Upload)"
                 />
               </Box>
             </AccordionDetails>
@@ -197,12 +197,12 @@ export default function App() {
 
         {/* Tab Specific Content */}
         <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-          
+
           {activeTab === 'Viral Generator' && (
             <Paper sx={{ p: 3, bgcolor: '#1e1e1e', mb: 2 }}>
               <Typography variant="h5" sx={{ mb: 2 }}>Paste YouTube URL</Typography>
-              <TextField 
-                fullWidth label="https://www.youtube.com/watch?v=..." variant="outlined" 
+              <TextField
+                fullWidth label="https://www.youtube.com/watch?v=..." variant="outlined"
                 value={config.url}
                 onChange={(e) => handleConfigChange('url', e.target.value)}
                 InputLabelProps={{ style: { color: '#aaa' } }}
@@ -219,14 +219,14 @@ export default function App() {
                 <Button variant="contained" onClick={handleSelectFile} startIcon={<FolderOpen />}>
                   Choose Audio
                 </Button>
-                <TextField 
-                  fullWidth disabled value={config.audio_path} label="File Path" 
+                <TextField
+                  fullWidth disabled value={config.audio_path} label="File Path"
                   InputLabelProps={{ style: { color: '#aaa' } }}
                   InputProps={{ style: { color: '#fff' } }}
                 />
               </Box>
-              <TextField 
-                fullWidth multiline rows={2} label="Optional Script (Context)" 
+              <TextField
+                fullWidth multiline rows={2} label="Optional Script (Context)"
                 value={config.script} onChange={(e) => handleConfigChange('script', e.target.value)}
                 InputLabelProps={{ style: { color: '#aaa' } }}
                 InputProps={{ style: { color: '#fff' } }}
@@ -237,10 +237,10 @@ export default function App() {
 
           {/* Action Button */}
           {(activeTab === 'Viral Generator' || activeTab === 'Story Mode') && (
-            <Button 
-              variant="contained" 
-              color="primary" 
-              size="large" 
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
               startIcon={<PlayArrow />}
               onClick={handleStartJob}
               sx={{ py: 2, fontSize: '1.1rem', fontWeight: 'bold' }}

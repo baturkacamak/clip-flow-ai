@@ -18,7 +18,7 @@ class LibraryIndexer:
         self.paths = config_manager.paths
         self.db_path = Path(self.paths.workspace_dir) / "chroma_db"
         self.model_name = self.cfg.clip_model_name
-        
+
         # Lazy load model
         self._model: Optional[SentenceTransformer] = None
         self._client: Optional[Any] = None
@@ -48,18 +48,14 @@ class LibraryIndexer:
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             return []
-        
+
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         if total_frames < num_frames:
             # If video is too short, just take what we have
             indices = list(range(total_frames))
         else:
-            indices = [
-                0,
-                total_frames // 2,
-                total_frames - 1
-            ]
-        
+            indices = [0, total_frames // 2, total_frames - 1]
+
         frames = []
         for idx in indices:
             cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
@@ -67,7 +63,7 @@ class LibraryIndexer:
             if ret:
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 frames.append(Image.fromarray(frame_rgb))
-        
+
         cap.release()
         return frames
 
@@ -96,32 +92,32 @@ class LibraryIndexer:
             file_id = self._get_file_hash(str(vid))
             if file_id not in existing_ids:
                 new_videos.append((vid, file_id))
-        
+
         if not new_videos:
             logger.info("Library is up to date.")
             return
 
         logger.info(f"Indexing {len(new_videos)} new videos...")
-        
+
         for vid_path, file_id in new_videos:
             try:
                 frames = self._extract_frames(str(vid_path))
                 if not frames:
                     logger.warning(f"Could not extract frames from {vid_path}")
                     continue
-                
+
                 # Encode frames
-                embeddings = self.model.encode(frames) # type: ignore
-                
+                embeddings = self.model.encode(frames)  # type: ignore
+
                 # Mean pooling
                 mean_embedding = np.mean(embeddings, axis=0)
-                
+
                 # Add to DB
                 self.collection.add(
-                    documents=[str(vid_path)], # We store path in document for now, or metadata
+                    documents=[str(vid_path)],  # We store path in document for now, or metadata
                     metadatas=[{"path": str(vid_path), "filename": vid_path.name}],
                     ids=[file_id],
-                    embeddings=[mean_embedding.tolist()]
+                    embeddings=[mean_embedding.tolist()],
                 )
                 logger.debug(f"Indexed: {vid_path.name}")
 

@@ -1,4 +1,3 @@
-
 import pytest
 
 from python_core.overlay.subtitle import SubtitleOverlay
@@ -16,6 +15,7 @@ def sample_words():
         Word(word="test", start=2.0, end=2.5, score=1.0),
     ]
 
+
 def test_chunk_words(sample_words):
     groups = chunk_words(sample_words, max_words=2)
     assert len(groups) == 3
@@ -23,6 +23,7 @@ def test_chunk_words(sample_words):
     assert groups[0].start == 0.0
     assert groups[0].end == 1.0
     assert groups[2].text == "test"
+
 
 @pytest.fixture
 def mock_config_manager(mocker):
@@ -38,19 +39,22 @@ def mock_config_manager(mocker):
     mock.paths.workspace_dir = "."
     return mock
 
+
 def test_subtitle_overlay_init(mock_config_manager):
     overlay = SubtitleOverlay(mock_config_manager)
     assert overlay is not None
 
+
 def test_overlay_process(mocker, mock_config_manager):
-    mocker.patch("src.overlay.subtitle.VideoFileClip")
-    mocker.patch("src.overlay.subtitle.CompositeVideoClip")
-    mocker.patch("src.overlay.subtitle.ImageFont.truetype")
-    
+    mocker.patch("python_core.overlay.subtitle.VideoFileClip")
+    mocker.patch("python_core.overlay.subtitle.CompositeVideoClip")
+    mocker.patch("python_core.overlay.subtitle.ImageFont.truetype")
+
     overlay = SubtitleOverlay(mock_config_manager)
     transcript = TranscriptionResult(
-        video_id="test", language="en", 
-        segments=[Segment(start=0, end=1, text="Hi", words=[Word(word="Hi", start=0, end=1, score=1)])]
+        video_id="test",
+        language="en",
+        segments=[Segment(start=0, end=1, text="Hi", words=[Word(word="Hi", start=0, end=1, score=1)])],
     )
-    
+
     overlay.overlay_subtitles("in.mp4", transcript, "out.mp4")

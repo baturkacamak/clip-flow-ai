@@ -25,14 +25,14 @@ class ContentCurator:
                 logger.warning("OpenAI API Key not found. Curation will be mocked/skipped.")
                 return None
             return instructor.from_openai(OpenAI(api_key=api_key))
-        
+
         elif self.cfg.llm_provider == "anthropic":
             api_key = self.cfg.anthropic_api_key
             if not api_key:
                 logger.warning("Anthropic API Key not found. Curation will be mocked/skipped.")
                 return None
             return instructor.from_anthropic(Anthropic(api_key=api_key))
-        
+
         else:
             raise ValueError(f"Unsupported LLM provider: {self.cfg.llm_provider}")
 
@@ -60,16 +60,16 @@ class ContentCurator:
         # Ideally, we implement sliding window.
         # Let's verify length.
         full_text = self._format_transcript(transcript)
-        
+
         # Token estimation (rough char count / 4)
         est_tokens = len(full_text) / 4
         logger.info(f"Transcript length: {len(full_text)} chars (~{int(est_tokens)} tokens)")
 
         # TODO: Implement robust chunking if > 100k tokens
         # For Part 3 demo, we process as one block or first X minutes.
-        
+
         clips = self._process_chunk(full_text, self.cfg.focus_topic)
-        
+
         return CurationResult(video_id=transcript.video_id, clips=clips)
 
     def _process_chunk(self, transcript_text: str, focus_topic: Optional[str]) -> List[ViralClip]:
@@ -83,8 +83,7 @@ class ContentCurator:
                 clips: List[ViralClip]
 
             user_prompt = USER_PROMPT_TEMPLATE.format(
-                focus_topic=focus_topic if focus_topic else "General Virality",
-                transcript_text=transcript_text
+                focus_topic=focus_topic if focus_topic else "General Virality", transcript_text=transcript_text
             )
 
             resp = self.client.chat.completions.create(
@@ -92,17 +91,14 @@ class ContentCurator:
                 response_model=Response,
                 messages=[
                     {"role": "system", "content": VIDEO_EDITOR_SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt}
+                    {"role": "user", "content": user_prompt},
                 ],
                 max_retries=2,
             )
-            
+
             # Filter by score
-            filtered_clips = [
-                c for c in resp.clips 
-                if c.virality_score >= self.cfg.virality_threshold
-            ]
-            
+            filtered_clips = [c for c in resp.clips if c.virality_score >= self.cfg.virality_threshold]
+
             logger.success(f"Identified {len(filtered_clips)} viral candidates (from {len(resp.clips)} raw).")
             return filtered_clips
 

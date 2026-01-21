@@ -10,6 +10,7 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 app = Celery("autoreel", broker=REDIS_URL, backend=REDIS_URL)
 
+
 @app.task(bind=True)
 def process_video_task(self, url: str, topic: str = None, upload: bool = False):
     """

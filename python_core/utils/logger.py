@@ -57,9 +57,7 @@ def setup_logger(
     )
 
     # Add error specific file handler
-    logger.add(
-        log_path / "error.log", rotation=rotation, retention=retention, level="ERROR"
-    )
+    logger.add(log_path / "error.log", rotation=rotation, retention=retention, level="ERROR")
 
     logger.info(f"Logger initialized. Logs writing to {log_path.absolute()}")
     return logger

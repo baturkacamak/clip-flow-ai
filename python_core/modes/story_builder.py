@@ -42,46 +42,38 @@ class StoryBuilder:
             return None, transcript
 
         b_rolls: List[BRollSegment] = []
-        
+
         MIN_SCENE_DURATION = 3.0
         current_text = ""
         current_start = 0.0
-        
+
         segments = transcript.segments
-        
+
         if not segments:
             logger.error("No segments in transcript.")
             return None, transcript
-            
+
         current_start = segments[0].start
-        
+
         for i, seg in enumerate(segments):
             current_text += " " + seg.text
             duration = seg.end - current_start
-            
-            is_last = (i == len(segments) - 1)
-            is_long_enough = (duration >= MIN_SCENE_DURATION)
-            is_sentence_end = seg.text.strip().endswith(('.', '?', '!'))
-            
+
+            is_last = i == len(segments) - 1
+            is_long_enough = duration >= MIN_SCENE_DURATION
+            is_sentence_end = seg.text.strip().endswith((".", "?", "!"))
+
             if is_last or (is_long_enough and is_sentence_end):
                 query = current_text.strip()
                 match_path = self.matcher.find_match(query)
-                
+
                 if match_path:
-                    b_rolls.append(BRollSegment(
-                        start=current_start,
-                        end=seg.end,
-                        video_path=match_path
-                    ))
+                    b_rolls.append(BRollSegment(start=current_start, end=seg.end, video_path=match_path))
                 else:
                     logger.warning(f"No visual match for: '{query}'. reusing previous.")
                     if b_rolls:
                         prev = b_rolls[-1]
-                        b_rolls.append(BRollSegment(
-                            start=current_start,
-                            end=seg.end,
-                            video_path=prev.video_path
-                        ))
+                        b_rolls.append(BRollSegment(start=current_start, end=seg.end, video_path=prev.video_path))
                     else:
                         pass
 
@@ -93,6 +85,6 @@ class StoryBuilder:
             source_audio_path=audio_path,
             clip_crop_data=[],
             b_roll_segments=b_rolls,
-            output_path=output_path
+            output_path=output_path,
         )
         return plan, transcript

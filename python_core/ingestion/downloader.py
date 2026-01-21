@@ -62,9 +62,7 @@ class VideoDownloader:
         """Callback for yt-dlp progress."""
         if d["status"] == "downloading":
             p = d.get("_percent_str", "0%").replace("%", "")
-            logger.debug(
-                f"Downloading: {p}% | Speed: {d.get('_speed_str', 'N/A')} | ETA: {d.get('_eta_str', 'N/A')}"
-            )
+            logger.debug(f"Downloading: {p}% | Speed: {d.get('_speed_str', 'N/A')} | ETA: {d.get('_eta_str', 'N/A')}")
         elif d["status"] == "finished":
             logger.info("Download completed processing post-download hooks...")
 
@@ -90,9 +88,7 @@ class VideoDownloader:
 
                 # Check Duplicates
                 if self._is_duplicate(video_id):
-                    logger.warning(
-                        f"Video '{title}' ({video_id}) already exists in history. Skipping."
-                    )
+                    logger.warning(f"Video '{title}' ({video_id}) already exists in history. Skipping.")
                     return None
 
                 # Quality Control (Simple Check based on available formats is complex in dry run,
@@ -114,16 +110,16 @@ class VideoDownloader:
         out_tmpl = str(self.workspace / "%(title)s [%(id)s].%(ext)s")
 
         ydl_opts = {
-            'format': f"bestvideo[height>={self.cfg.min_resolution}]+bestaudio/best[height>={self.cfg.min_resolution}]",
-            'outtmpl': out_tmpl,
-            'writethumbnail': True,
-            'writeinfojson': True, # Metadata sidecar
-            'writesubtitles': True, # Download manual subtitles
-            'writeautomaticsub': True, # Download auto-generated subtitles if manual not available
-            'subtitleslangs': ['en'], # Prefer English
-            'progress_hooks': [self.progress_hook],
-            'merge_output_format': self.cfg.video_format,
-            'retries': self.cfg.retries,
+            "format": f"bestvideo[height>={self.cfg.min_resolution}]+bestaudio/best[height>={self.cfg.min_resolution}]",
+            "outtmpl": out_tmpl,
+            "writethumbnail": True,
+            "writeinfojson": True,  # Metadata sidecar
+            "writesubtitles": True,  # Download manual subtitles
+            "writeautomaticsub": True,  # Download auto-generated subtitles if manual not available
+            "subtitleslangs": ["en"],  # Prefer English
+            "progress_hooks": [self.progress_hook],
+            "merge_output_format": self.cfg.video_format,
+            "retries": self.cfg.retries,
         }
 
         # Cookie support
@@ -162,9 +158,7 @@ class VideoDownloader:
                 # If merged, the extension might change to .mp4 from .webm etc.
                 # But since we forced merge_output_format, it should be predictable.
 
-                video_path = Path(base_filename).with_suffix(
-                    f".{self.cfg.video_format}"
-                )
+                video_path = Path(base_filename).with_suffix(f".{self.cfg.video_format}")
 
                 # Metadata path
                 metadata_path = Path(base_filename).with_suffix(".info.json")
@@ -172,9 +166,7 @@ class VideoDownloader:
                 # Audio path (if separated)
                 audio_path = None
                 if self.cfg.separate_audio:
-                    audio_path = Path(base_filename).with_suffix(
-                        f".{self.cfg.audio_format}"
-                    )
+                    audio_path = Path(base_filename).with_suffix(f".{self.cfg.audio_format}")
 
                 result = {
                     "id": video_id,

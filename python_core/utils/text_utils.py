@@ -10,23 +10,19 @@ def chunk_words(words: List[Word], max_words: int = 3) -> List[CaptionGroup]:
     """
     groups = []
     current_chunk = []
-    
+
     for word in words:
         current_chunk.append(word)
-        
+
         if len(current_chunk) >= max_words:
             groups.append(_create_group(current_chunk))
             current_chunk = []
-            
+
     if current_chunk:
         groups.append(_create_group(current_chunk))
-        
+
     return groups
 
+
 def _create_group(words: List[Word]) -> CaptionGroup:
-    return CaptionGroup(
-        words=words,
-        start=words[0].start,
-        end=words[-1].end,
-        text=" ".join(w.word for w in words)
-    )
+    return CaptionGroup(words=words, start=words[0].start, end=words[-1].end, text=" ".join(w.word for w in words))

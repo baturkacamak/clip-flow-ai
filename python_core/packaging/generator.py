@@ -18,6 +18,7 @@ class MetadataResponse(BaseModel):
     tags: List[str]
     captions: str
 
+
 class MetadataGenerator:
     def __init__(self, config_manager: ConfigManager):
         self.cfg = config_manager.intelligence
@@ -31,7 +32,7 @@ class MetadataGenerator:
                 logger.warning("OpenAI API Key not found.")
                 return None
             return instructor.from_openai(OpenAI(api_key=api_key))
-        
+
         elif self.cfg.llm_provider == "anthropic":
             api_key = self.cfg.anthropic_api_key
             if not api_key:
@@ -49,7 +50,7 @@ class MetadataGenerator:
             description=f"Watch this {clip.category} clip! #shorts",
             tags=["#shorts", "#viral"],
             captions=clip.reasoning,
-            platforms=["youtube", "tiktok"]
+            platforms=["youtube", "tiktok"],
         )
 
         if not self.client:
@@ -61,18 +62,19 @@ class MetadataGenerator:
                 response_model=MetadataResponse,
                 messages=[
                     {"role": "system", "content": METADATA_SYSTEM_PROMPT},
-                    {"role": "user", "content": USER_METADATA_TEMPLATE.format(
-                        clip_title=clip.title,
-                        clip_reasoning=clip.reasoning,
-                        clip_category=clip.category
-                    )}
+                    {
+                        "role": "user",
+                        "content": USER_METADATA_TEMPLATE.format(
+                            clip_title=clip.title, clip_reasoning=clip.reasoning, clip_category=clip.category
+                        ),
+                    },
                 ],
                 max_retries=2,
             )
-            
+
             # Limit tags
-            tags = resp.tags[:self.pkg_cfg.hashtags_count]
-            
+            tags = resp.tags[: self.pkg_cfg.hashtags_count]
+
             return VideoPackage(
                 video_path=video_path,
                 thumbnail_path=thumbnail_path,
@@ -80,7 +82,7 @@ class MetadataGenerator:
                 description=resp.description,
                 tags=tags,
                 captions=resp.captions,
-                platforms=["youtube", "tiktok"]
+                platforms=["youtube", "tiktok"],
             )
 
         except Exception as e:

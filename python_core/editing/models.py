@@ -10,6 +10,7 @@ class BRollSegment(BaseModel):
     end: float
     video_path: str
 
+
 class RenderPlan(BaseModel):
     source_video_path: str
     source_audio_path: Optional[str]

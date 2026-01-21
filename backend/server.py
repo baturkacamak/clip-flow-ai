@@ -1,11 +1,11 @@
-import sys
-import os
 import asyncio
 import logging
+import sys
 import threading
 from pathlib import Path
 from typing import Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -18,17 +18,22 @@ sys.path.append(str(BASE_DIR))
 
 # Import the actual pipeline logic from python_core
 try:
-    from python_core.pipeline import PipelineManager
     from python_core.config_manager import ConfigManager
+    from python_core.pipeline import PipelineManager
 except ImportError as e:
     print(f"WARNING: Could not import python_core modules. Error: {e}")
+
     # Mock implementation for UI testing if core is missing
     class PipelineManager:
-        def __init__(self, config, keep_temp=False): pass
-        def run(self, **kwargs): 
+        def __init__(self, config, keep_temp=False):
+            pass
+
+        def run(self, **kwargs):
             logging.info(f"Mock Pipeline Running: {kwargs}")
             import time
+
             time.sleep(2)
+
 
 # --- App Configuration ---
 app = FastAPI(title="AutoReelAI Backend")
@@ -40,6 +45,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # --- Log Streaming ---
 class LogQueueHandler(logging.Handler):
@@ -56,12 +62,14 @@ class LogQueueHandler(logging.Handler):
         except (RuntimeError, asyncio.CancelledError):
             pass
 
+
 log_handler = LogQueueHandler()
-formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', datefmt='%H:%M:%S')
+formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", datefmt="%H:%M:%S")
 log_handler.setFormatter(formatter)
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
 root_logger.addHandler(log_handler)
+
 
 # --- Data Models ---
 class JobConfig(BaseModel):
@@ -78,6 +86,7 @@ class JobConfig(BaseModel):
     dry_run: bool = False
     platform: str = "youtube"
 
+
 # --- Logic ---
 def run_pipeline_thread(config: dict):
     logging.info(f"--- Starting Job: Mode={config.get('mode')} ---")
@@ -86,21 +95,23 @@ def run_pipeline_thread(config: dict):
         # We might want to override settings here based on UI input if ConfigManager supports it
         try:
             cm = ConfigManager()
-        except:
-            cm = None 
+        except Exception:
+            cm = None
 
         pipeline = PipelineManager(cm, keep_temp=True)
         pipeline.run(
-            url=config.get('url'),
-            topic=config.get('topic'),
-            upload=not config.get('dry_run'),
-            mode=config.get('mode'),
-            audio_path=config.get('audio_path')
+            url=config.get("url"),
+            topic=config.get("topic"),
+            upload=not config.get("dry_run"),
+            mode=config.get("mode"),
+            audio_path=config.get("audio_path"),
         )
     except Exception as e:
         logging.error(f"PIPELINE ERROR: {e}")
         import traceback
+
         logging.error(traceback.format_exc())
+
 
 @app.post("/start-job")
 async def start_job(config: JobConfig):
@@ -113,6 +124,7 @@ async def start_job(config: JobConfig):
     thread.start()
     return {"status": "started", "config": config.dict()}
 
+
 @app.websocket("/ws/logs")
 async def websocket_logs(websocket: WebSocket):
     await websocket.accept()
@@ -123,6 +135,7 @@ async def websocket_logs(websocket: WebSocket):
     except WebSocketDisconnect:
         pass
 
+
 @app.get("/library")
 async def get_library():
     library_path = Path("./library")
@@ -131,7 +144,9 @@ async def get_library():
     files = [f.name for f in library_path.iterdir() if f.is_file()]
     return {"files": files}
 
+
 if __name__ == "__main__":
     import uvicorn
+
     # 0.0.0.0 allows access from other containers/machines if needed
     uvicorn.run(app, host="127.0.0.1", port=8000)
