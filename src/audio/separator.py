@@ -1,9 +1,11 @@
-import subprocess
 import os
 from pathlib import Path
 from typing import Optional
+
 from loguru import logger
+
 from src.config_manager import ConfigManager
+
 
 class AudioSeparator:
     def __init__(self, config_manager: ConfigManager):
@@ -23,13 +25,11 @@ class AudioSeparator:
         output_dir.mkdir(parents=True, exist_ok=True)
         
         # Command: demucs -n htdemucs --two-stems=vocals -o output_dir input_file
-        cmd = [
-            "demucs",
-            "-n", "htdemucs",
-            "--two-stems", "vocals",
-            "-o", str(output_dir),
-            audio_path
-        ]
+        # cmd = ["demucs", "-n", "htdemucs", "--two-stems=vocals", "-o", str(output_dir), str(input_path)]
+        #     "--two-stems", "vocals",
+        #     "-o", str(output_dir),
+        #     audio_path
+        # ]
         
         logger.info(f"Running Demucs separation for {audio_path}...")
         try:

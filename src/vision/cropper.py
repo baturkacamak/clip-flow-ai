@@ -1,9 +1,10 @@
-import cv2
-import mediapipe as mp
 from pathlib import Path
 from typing import Any, List, Optional
+
+import cv2
+import mediapipe as mp
 from loguru import logger
-from scenedetect import VideoManager, SceneManager
+from scenedetect import SceneManager, VideoManager
 from scenedetect.detectors import ContentDetector
 
 from src.config_manager import ConfigManager
@@ -45,7 +46,8 @@ class SmartCropper:
             # We want the start frame of each new scene (except the very first one relative to clip)
             cuts = []
             for i, scene in enumerate(scene_list):
-                if i == 0: continue # Skip start
+                if i == 0:
+                    continue  # Skip start
                 cuts.append(scene[0].get_frames())
             
             return cuts

@@ -1,15 +1,17 @@
 import os
 import pickle
-from typing import Optional, Any
 from datetime import datetime
-from loguru import logger
+from typing import Any, Optional
+
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+from loguru import logger
+
+from src.config_manager import ConfigManager
 from src.distribution.base import BaseUploader
 from src.packaging.models import VideoPackage
-from src.config_manager import ConfigManager
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
 

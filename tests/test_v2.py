@@ -1,9 +1,11 @@
+
 import pytest
-from unittest.mock import MagicMock
+
 from src.audio.separator import AudioSeparator
 from src.editing.ffmpeg_compositor import FFmpegCompositor
 from src.editing.models import RenderPlan
 from src.vision.models import ClipCropData, FrameCrop
+
 
 @pytest.fixture
 def mock_config_manager(mocker):

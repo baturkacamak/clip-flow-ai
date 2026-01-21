@@ -1,9 +1,11 @@
+
 import pytest
-from unittest.mock import MagicMock
-from src.packaging.generator import MetadataGenerator
-from src.packaging.thumbnail import ThumbnailMaker
+
 from src.intelligence.models import ViralClip
+from src.packaging.generator import MetadataGenerator
 from src.packaging.models import VideoPackage
+from src.packaging.thumbnail import ThumbnailMaker
+
 
 @pytest.fixture
 def mock_config_manager(mocker):

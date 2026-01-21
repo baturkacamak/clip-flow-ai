@@ -1,12 +1,14 @@
-import cv2
 import os
 import subprocess
-import shutil
 from pathlib import Path
 from typing import List
+
+import cv2
 from loguru import logger
+
 from src.config_manager import ConfigManager
 from src.editing.models import RenderPlan
+
 
 class FFmpegCompositor:
     def __init__(self, config_manager: ConfigManager):
@@ -31,7 +33,7 @@ class FFmpegCompositor:
         # Let's iterate clips and render chunks.
         segment_files = []
         
-        for i, crop_data in enumerate(plan.clip_crop_data):
+        for _i, crop_data in enumerate(plan.clip_crop_data):
             clip_id = crop_data.clip_id
             temp_face_path = Path(self.paths.workspace_dir) / f"face_{clip_id}.mp4"
             
@@ -92,7 +94,7 @@ class FFmpegCompositor:
             # 2. Overlay Face
             # Face video is already cropped size (e.g. 608x1080).
             # Center it.
-            filter_str += f"[bg][1:v]overlay=(W-w)/2:(H-h)/2[v1]"
+            filter_str += "[bg][1:v]overlay=(W-w)/2:(H-h)/2[v1]"
             
             last_stream = "v1"
             
@@ -106,10 +108,13 @@ class FFmpegCompositor:
                 rel_start = max(0, br.start - start_t)
                 rel_end = min(duration, br.end - start_t)
                 
-                # Resize B-Roll to fill
-                filter_str += f"[{input_idx}:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,crop={target_w}:{target_h}[br{idx}]"
+                # Complex filter
+                filter_str += (
+                    f"[{input_idx}:v]scale={target_w}:{target_h}:force_original_aspect_ratio=increase,"
+                    f"crop={target_w}:{target_h}[br{idx}];"
+                )
                 
-                filter_str += f"[{last_stream}][br{idx}]overlay=enable='between(t,{rel_start},{rel_end})'[v{idx+2}]"
+                filter_str += f"[{last_stream}][br{idx}]overlay=enable='between(t,{rel_start},{rel_end})'[v{idx+2}];"
                 last_stream = f"v{idx+2}"
             
             # Map final video
@@ -128,7 +133,7 @@ class FFmpegCompositor:
             # Cleanup temp face
             try:
                 os.remove(temp_face_path)
-            except:
+            except Exception:
                 pass
 
         # Concat segments
@@ -139,10 +144,12 @@ class FFmpegCompositor:
     def _generate_cropped_video(self, source_path, crop_data, output_path):
         """Uses CV2 to write the cropped face video very fast."""
         cap = cv2.VideoCapture(source_path)
-        if not cap.isOpened(): return False
+        if not cap.isOpened():
+            return False
         
         frames = crop_data.frames
-        if not frames: return False
+        if not frames:
+            return False
         
         # Setup Writer
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -163,7 +170,8 @@ class FFmpegCompositor:
         
         while next_crop:
             ret, frame = cap.read()
-            if not ret: break
+            if not ret:
+                break
             
             if current_idx == next_crop.frame_index:
                 # Crop
@@ -206,5 +214,7 @@ class FFmpegCompositor:
         os.remove(list_path)
         # Cleanup segments
         for f in files:
-            try: os.remove(f)
-            except: pass
+            try:
+                os.remove(f)
+            except Exception:
+                pass

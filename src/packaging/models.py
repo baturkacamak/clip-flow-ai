@@ -1,5 +1,7 @@
 from typing import List
+
 from pydantic import BaseModel, Field
+
 
 class VideoPackage(BaseModel):
     """Final package for a generated video."""

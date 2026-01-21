@@ -1,9 +1,13 @@
+from typing import Any, Tuple, cast
+
 import numpy as np
 from skimage.filters import gaussian
 from skimage.transform import resize
-from typing import Tuple, Any, cast
 
-def create_blurred_background(frame: np.ndarray[Any, Any], radius: float, target_size: Tuple[int, int]) -> np.ndarray[Any, Any]:
+
+def create_blurred_background(
+    frame: np.ndarray[Any, Any], radius: float, target_size: Tuple[int, int]
+) -> np.ndarray[Any, Any]:
     """
     Creates a blurred background from the source frame.
     Optimization: Downscale -> Blur -> Upscale.

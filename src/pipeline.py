@@ -1,22 +1,23 @@
-import shutil
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
+
 from loguru import logger
+
 from src.config_manager import ConfigManager
-from src.ingestion.downloader import VideoDownloader
-from src.transcription.engine import AudioTranscriber
-from src.intelligence.curator import ContentCurator
-from src.intelligence.models import ViralClip
-from src.vision.cropper import SmartCropper
-from src.retrieval.indexer import LibraryIndexer
-from src.retrieval.matcher import VisualMatcher
+from src.distribution.tiktok_browser import TikTokUploader
+from src.distribution.youtube import YouTubeUploader
 from src.editing.compositor import VideoCompositor
-from src.editing.models import RenderPlan, BRollSegment
+from src.editing.models import BRollSegment, RenderPlan
+from src.ingestion.downloader import VideoDownloader
+from src.intelligence.curator import ContentCurator
 from src.overlay.subtitle import SubtitleOverlay
 from src.packaging.generator import MetadataGenerator
 from src.packaging.thumbnail import ThumbnailMaker
-from src.distribution.youtube import YouTubeUploader
-from src.distribution.tiktok_browser import TikTokUploader
+from src.retrieval.indexer import LibraryIndexer
+from src.retrieval.matcher import VisualMatcher
+from src.transcription.engine import AudioTranscriber
+from src.vision.cropper import SmartCropper
+
 
 def get_text_for_range(transcript, start: float, end: float) -> str:
     text = []
@@ -34,7 +35,13 @@ class PipelineManager:
         self.workspace = Path(self.cfg.paths.workspace_dir)
         self.output_dir = Path(self.cfg.paths.output_dir)
 
-    def run(self, url: str, topic: Optional[str] = None, upload: bool = False, platforms: Optional[List[str]] = None) -> None:
+    def run(
+        self,
+        url: str,
+        topic: Optional[str] = None,
+        upload: bool = False,
+        platforms: Optional[List[str]] = None,
+    ) -> None:
         logger.info(f"Starting Pipeline for {url}")
         
         # Override topic if provided

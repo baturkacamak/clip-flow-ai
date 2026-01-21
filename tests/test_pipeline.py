@@ -1,8 +1,9 @@
+
 import pytest
-from unittest.mock import MagicMock
+
 from src.pipeline import PipelineManager
-from src.config_manager import ConfigManager
 from src.vision.models import ClipCropData, FrameCrop
+
 
 @pytest.fixture
 def mock_components(mocker):
@@ -80,10 +81,10 @@ def test_pipeline_run_flow(mocker, mock_config_manager, mock_components):
 def test_pipeline_cleanup(mocker, mock_config_manager, mock_components):
     # Test that intermediate files would be cleaned up
     # We can mock shutil.rmtree or os.remove
-    mock_rm = mocker.patch("shutil.rmtree")
+    mocker.patch("shutil.rmtree")
     
     # Run with keep_temp=False
-    pipeline = PipelineManager(mock_config_manager, keep_temp=False)
+    PipelineManager(mock_config_manager, keep_temp=False)
     # We need to simulate a run or call cleanup explicitly if exposed
     # Assuming cleanup happens in run finally block or context manager
     

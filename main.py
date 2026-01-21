@@ -1,25 +1,24 @@
-import sys
-import json
 import argparse
+import sys
 from pathlib import Path
-from loguru import logger
+
 from src.config_manager import ConfigManager
-from src.utils.logger import setup_logger
+from src.distribution.tiktok_browser import TikTokUploader
+from src.distribution.youtube import YouTubeUploader
+from src.editing.compositor import VideoCompositor
+from src.editing.models import BRollSegment, RenderPlan
 from src.ingestion.downloader import VideoDownloader
-from src.transcription.engine import AudioTranscriber
 from src.intelligence.curator import ContentCurator
 from src.intelligence.models import ViralClip
-from src.vision.cropper import SmartCropper
-from src.retrieval.indexer import LibraryIndexer
-from src.retrieval.matcher import VisualMatcher
-from src.editing.compositor import VideoCompositor
-from src.editing.models import RenderPlan, BRollSegment
 from src.overlay.subtitle import SubtitleOverlay
 from src.packaging.generator import MetadataGenerator
 from src.packaging.thumbnail import ThumbnailMaker
-from src.packaging.models import VideoPackage
-from src.distribution.youtube import YouTubeUploader
-from src.distribution.tiktok_browser import TikTokUploader
+from src.retrieval.indexer import LibraryIndexer
+from src.retrieval.matcher import VisualMatcher
+from src.transcription.engine import AudioTranscriber
+from src.utils.logger import setup_logger
+from src.vision.cropper import SmartCropper
+
 
 def get_text_for_range(transcript, start: float, end: float) -> str:
     text = []

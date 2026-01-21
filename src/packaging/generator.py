@@ -1,13 +1,16 @@
+from typing import Any, List, Optional
+
 import instructor
-from typing import List, Optional, Any
-from pydantic import BaseModel
-from openai import OpenAI
 from anthropic import Anthropic
 from loguru import logger
+from openai import OpenAI
+from pydantic import BaseModel
+
 from src.config_manager import ConfigManager
 from src.intelligence.models import ViralClip
 from src.packaging.models import VideoPackage
 from src.packaging.prompts import METADATA_SYSTEM_PROMPT, USER_METADATA_TEMPLATE
+
 
 class MetadataResponse(BaseModel):
     title: str

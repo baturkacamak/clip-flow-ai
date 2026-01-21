@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 from datetime import datetime
-from src.packaging.models import VideoPackage
+from typing import Optional
+
 from src.config_manager import ConfigManager
+from src.packaging.models import VideoPackage
+
 
 class BaseUploader(ABC):
     def __init__(self, config_manager: ConfigManager):

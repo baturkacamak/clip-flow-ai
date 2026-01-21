@@ -1,11 +1,13 @@
 import os
-import time
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
 from loguru import logger
 from playwright.sync_api import sync_playwright
+
 from src.distribution.base import BaseUploader
 from src.packaging.models import VideoPackage
+
 
 class TikTokUploader(BaseUploader):
     def authenticate(self) -> None:

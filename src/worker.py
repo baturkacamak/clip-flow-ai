@@ -1,5 +1,7 @@
 import os
+
 from celery import Celery
+
 from src.config_manager import ConfigManager
 from src.pipeline import PipelineManager
 

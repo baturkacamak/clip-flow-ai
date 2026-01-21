@@ -1,8 +1,10 @@
 import argparse
 import sys
+
 from src.config_manager import ConfigManager
 from src.pipeline import PipelineManager
 from src.utils.logger import setup_logger
+
 
 def main():
     parser = argparse.ArgumentParser(description="AutoReelAI CLI")

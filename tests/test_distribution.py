@@ -1,8 +1,10 @@
+
 import pytest
-from unittest.mock import MagicMock
-from src.distribution.youtube import YouTubeUploader
+
 from src.distribution.tiktok_browser import TikTokUploader
+from src.distribution.youtube import YouTubeUploader
 from src.packaging.models import VideoPackage
+
 
 @pytest.fixture
 def mock_config_manager(mocker):
@@ -54,6 +56,6 @@ def test_youtube_upload_flow(mocker, mock_config_manager, sample_package):
         mocker.patch("src.distribution.tiktok_browser.sync_playwright")
         mocker.patch("os.path.exists", return_value=True)
     
-        uploader = TikTokUploader(mock_config_manager)
+        TikTokUploader(mock_config_manager)
     res = uploader.upload(sample_package)
     assert res is True

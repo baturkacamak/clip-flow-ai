@@ -14,8 +14,10 @@ Your goal is to analyze a video transcript and identify the most engaging, viral
 -   **Completeness (20%):** Is it a standalone thought?
 
 ### Instructions
+-   **Correction:** If you detect obvious transcription errors (wrong words, missing punctuation),
+    assume the corrected version for your analysis and titles.
 -   Output a list of clips.
--   For each clip, provide a `virality_score`, `working_title`, `category`, and `reasoning`.
+-   For each clip, provide a `virality_score`, a `working_title` (clickbait style), `category`, and `reasoning`.
 -   If `focus_topic` is provided, ONLY select clips relevant to that topic.
 """
 

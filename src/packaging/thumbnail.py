@@ -1,11 +1,13 @@
-import cv2
-import numpy as np
 from pathlib import Path
 from typing import Any
-from PIL import Image, ImageDraw, ImageFont
+
+import cv2
 from loguru import logger
+from PIL import Image, ImageDraw, ImageFont
+
 from src.config_manager import ConfigManager
 from src.intelligence.models import ViralClip
+
 
 class ThumbnailMaker:
     def __init__(self, config_manager: ConfigManager):

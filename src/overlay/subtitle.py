@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional, Any, Tuple
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 from loguru import logger

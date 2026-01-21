@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
+from typing import Optional, Tuple
+
 import yaml
 from pydantic import BaseModel, Field
-from typing import Optional, List, Tuple
+
 
 class PathsConfig(BaseModel):
     base_dir: str = Field(default=".")

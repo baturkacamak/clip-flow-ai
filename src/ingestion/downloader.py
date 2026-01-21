@@ -114,13 +114,16 @@ class VideoDownloader:
         out_tmpl = str(self.workspace / "%(title)s [%(id)s].%(ext)s")
 
         ydl_opts = {
-            "format": f"bestvideo[height>={self.cfg.min_resolution}]+bestaudio/best[height>={self.cfg.min_resolution}]",
-            "outtmpl": out_tmpl,
-            "writethumbnail": True,
-            "writeinfojson": True,  # Metadata sidecar
-            "progress_hooks": [self.progress_hook],
-            "merge_output_format": self.cfg.video_format,
-            "retries": self.cfg.retries,
+            'format': f"bestvideo[height>={self.cfg.min_resolution}]+bestaudio/best[height>={self.cfg.min_resolution}]",
+            'outtmpl': out_tmpl,
+            'writethumbnail': True,
+            'writeinfojson': True, # Metadata sidecar
+            'writesubtitles': True, # Download manual subtitles
+            'writeautomaticsub': True, # Download auto-generated subtitles if manual not available
+            'subtitleslangs': ['en'], # Prefer English
+            'progress_hooks': [self.progress_hook],
+            'merge_output_format': self.cfg.video_format,
+            'retries': self.cfg.retries,
         }
 
         # Cookie support
