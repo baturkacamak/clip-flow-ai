@@ -1,5 +1,7 @@
 import sys
 from pathlib import Path
+
+from typing import Any
 from loguru import logger
 
 
@@ -8,7 +10,7 @@ def setup_logger(
     rotation: str = "10 MB",
     retention: str = "10 days",
     level: str = "INFO",
-):
+) -> Any:
     """
     Configures the loguru logger with rotation, retention, and console output.
 
@@ -27,7 +29,12 @@ def setup_logger(
     # Add console handler (stderr)
     logger.add(
         sys.stderr,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        format=(
+            "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+            "<level>{level: <8}</level> | "
+            "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+            "<level>{message}</level>"
+        ),
         level=level,
     )
 

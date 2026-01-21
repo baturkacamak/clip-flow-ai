@@ -1,8 +1,10 @@
 import json
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
+
 import yt_dlp
 from loguru import logger
+
 from src.config_manager import ConfigManager, DownloaderConfig, PathsConfig
 
 
@@ -21,7 +23,7 @@ class VideoDownloader:
         self.workspace.mkdir(parents=True, exist_ok=True)
         self._ensure_history_file()
 
-    def _ensure_history_file(self):
+    def _ensure_history_file(self) -> None:
         """Creates the history file if it doesn't exist."""
         if not self.history_file.exists():
             with open(self.history_file, "w") as f:
@@ -40,7 +42,7 @@ class VideoDownloader:
             logger.error(f"Failed to read history file: {e}")
             return False
 
-    def _add_to_history(self, video_id: str):
+    def _add_to_history(self, video_id: str) -> None:
         """Adds video_id to the processed history."""
         if not self.cfg.check_duplicates:
             return
@@ -56,7 +58,7 @@ class VideoDownloader:
         except Exception as e:
             logger.error(f"Failed to update history file: {e}")
 
-    def progress_hook(self, d):
+    def progress_hook(self, d: Dict[str, Any]) -> None:
         """Callback for yt-dlp progress."""
         if d["status"] == "downloading":
             p = d.get("_percent_str", "0%").replace("%", "")

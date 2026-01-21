@@ -1,7 +1,8 @@
 from pathlib import Path
+from typing import Optional
+
 import yaml
 from pydantic import BaseModel, Field
-from typing import Optional
 
 
 class PathsConfig(BaseModel):
@@ -23,6 +24,17 @@ class DownloaderConfig(BaseModel):
     retries: int = Field(default=3)
 
 
+class TranscriptionConfig(BaseModel):
+    model_size: str = Field(default="large-v2")
+    compute_type: str = Field(default="float16")
+    device: str = Field(default="auto")
+    language: str = Field(default="auto")
+    beam_size: int = Field(default=5)
+    vad_filter: bool = Field(default=True)
+    min_silence_duration_ms: int = Field(default=500)
+    enable_diarization: bool = Field(default=False)
+
+
 class PipelineConfig(BaseModel):
     target_aspect_ratio: str = Field(default="9:16")
     llm_model: str = Field(default="gpt-4")
@@ -31,6 +43,7 @@ class PipelineConfig(BaseModel):
 class AppConfig(BaseModel):
     paths: PathsConfig
     downloader: DownloaderConfig
+    transcription: TranscriptionConfig
     pipeline: PipelineConfig
 
 
@@ -61,6 +74,10 @@ class ConfigManager:
     @property
     def downloader(self) -> DownloaderConfig:
         return self.config.downloader
+
+    @property
+    def transcription(self) -> TranscriptionConfig:
+        return self.config.transcription
 
     @property
     def pipeline(self) -> PipelineConfig:

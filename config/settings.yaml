@@ -15,6 +15,16 @@ downloader:
   check_duplicates: true
   retries: 3
 
+transcription:
+  model_size: "large-v2"
+  compute_type: "float16" # or "int8" for CPU
+  device: "auto" # auto, cuda, mps, cpu
+  language: "en" # or "auto"
+  beam_size: 5
+  vad_filter: true
+  min_silence_duration_ms: 500
+  enable_diarization: false # Placeholder for Part 2
+
 pipeline:
   target_aspect_ratio: "9:16"
   llm_model: "gpt-4"
