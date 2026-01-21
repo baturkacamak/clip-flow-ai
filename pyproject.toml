@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "autoreelai"
+version = "0.0.0"
+description = "AutoReelAI - Fully automated video production pipeline"
+authors = ["AutoReelAI Team"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+yt-dlp = ">=2023.11.16"
+pyyaml = ">=6.0.1"
+pydantic = ">=2.5.2"
+loguru = ">=0.7.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-mock = "^3.12.0"
+ruff = "^0.3.0"
+mypy = "^1.8.0"
+types-pyyaml = "^6.0.12.12"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "B"] # Pyflakes, pycodestyle, isort, bugbear
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "--cov=src --cov-report=term-missing"

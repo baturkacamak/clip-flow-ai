@@ -1,0 +1,6 @@
+# .github/labeler.yml
+src/*: ["source"]
+tests/*: ["tests"]
+config/*: ["config"]
+docs/*: ["documentation"]
+.github/*: ["infrastructure"]
