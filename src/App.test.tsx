@@ -9,8 +9,8 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 // Mock Electron Bridge
 const mockOpenFile = vi.fn();
-window.electron = {
-  openFile: mockOpenFile
+(window as any).electronAPI = {
+  selectFile: mockOpenFile
 };
 
 describe('App Component', () => {
@@ -22,7 +22,7 @@ describe('App Component', () => {
     render(<App />);
     expect(screen.getByText('AutoReel AI')).toBeInTheDocument();
     expect(screen.getByText('Viral Generator')).toBeInTheDocument();
-    expect(screen.getByLabelText(/YouTube Video URL/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/youtube\.com/i)).toBeInTheDocument();
   });
 
   it('switches tabs correctly', () => {
@@ -31,7 +31,7 @@ describe('App Component', () => {
     fireEvent.click(storyTab);
 
     expect(screen.getByText('Select Voiceover')).toBeInTheDocument();
-    expect(screen.getByText('Select Audio')).toBeInTheDocument();
+    expect(screen.getByText('Choose Audio')).toBeInTheDocument();
   });
 
   it('handles file selection in Story Mode', async () => {
@@ -42,13 +42,13 @@ describe('App Component', () => {
     // Mock file selection
     mockOpenFile.mockResolvedValue('/path/to/audio.mp3');
 
-    const selectBtn = screen.getByText('Select Audio');
+    const selectBtn = screen.getByText('Choose Audio');
     fireEvent.click(selectBtn);
 
     await waitFor(() => {
       // Check if input has value (we disabled it so we check value prop logic indirectly or assume state update)
       // Material UI TextField input is found via label usually.
-      const input = screen.getByLabelText('Audio Path') as HTMLInputElement;
+      const input = screen.getByLabelText('File Path') as HTMLInputElement;
       expect(input.value).toBe('/path/to/audio.mp3');
     });
   });
@@ -58,7 +58,7 @@ describe('App Component', () => {
     // Mock success response
     mockedAxios.post.mockResolvedValue({ data: { status: 'started' } });
 
-    const urlInput = screen.getByLabelText(/YouTube Video URL/i);
+    const urlInput = screen.getByLabelText(/youtube\.com/i);
     fireEvent.change(urlInput, { target: { value: 'https://youtube.com/test' } });
 
     const startBtn = screen.getByText('START PIPELINE');

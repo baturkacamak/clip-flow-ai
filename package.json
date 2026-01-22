@@ -8,7 +8,8 @@
     "build": "tsc && vite build && tsc -p electron",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "prepare": "if command -v pre-commit >/dev/null; then pre-commit install; else echo 'pre-commit not found, skipping hook installation'; fi"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -20,6 +21,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^14.1.2",
     "@types/jest": "^29.5.11",
     "@types/react": "^18.2.37",
@@ -33,8 +35,18 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
     "jsdom": "^23.0.1",
+    "lint-staged": "^16.2.7",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
     "vitest": "^1.0.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }
