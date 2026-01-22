@@ -9,6 +9,7 @@ let pythonProcess: ChildProcess | null = null;
 const PY_SERVER_PATH = path.join(__dirname, '../backend/server.py');
 
 function createPythonProcess() {
+  console.log(`[Electron] Check SKIP_BACKEND: '${process.env.SKIP_BACKEND}'`);
   if (process.env.SKIP_BACKEND === 'true') {
     console.log('Skipping Python Backend spawn (managed externally)...');
     return;
@@ -17,17 +18,26 @@ function createPythonProcess() {
   console.log('Starting Python Backend...');
   const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
 
-  pythonProcess = spawn(pythonCmd, [PY_SERVER_PATH], {
-    cwd: path.join(__dirname, '../'), // Run from root
-  });
+  try {
+    pythonProcess = spawn(pythonCmd, [PY_SERVER_PATH], {
+      cwd: path.join(__dirname, '../'), // Run from root
+    });
 
-  pythonProcess.stdout?.on('data', (data) => {
-    console.log(`[Python]: ${data}`);
-  });
+    pythonProcess.stdout?.on('data', (data) => {
+      console.log(`[Python]: ${data}`);
+    });
 
-  pythonProcess.stderr?.on('data', (data) => {
-    console.error(`[Python Err]: ${data}`);
-  });
+    pythonProcess.stderr?.on('data', (data) => {
+      console.error(`[Python Err]: ${data}`);
+    });
+
+    pythonProcess.on('error', (err) => {
+      console.error('Failed to start Python process:', err);
+      dialog.showErrorBox('Backend Error', `Failed to start Python backend.\n${err.message}\n\nPlease ensure '${pythonCmd}' is installed and in your PATH, or start the backend manually.`);
+    });
+  } catch (err) {
+    console.error('Exception spawning python:', err);
+  }
 }
 
 function killPythonProcess() {
