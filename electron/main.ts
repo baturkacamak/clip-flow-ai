@@ -61,7 +61,13 @@ function createWindow() {
   });
 
   // In Dev, load Vite server. In Prod, load index.html
-  mainWindow.loadURL('http://127.0.0.1:5173');
+  const devUrl = 'http://127.0.0.1:5173';
+  mainWindow.loadURL(devUrl).catch((e) => {
+    console.error('Failed to load Vite server (likely not ready yet). Retrying...', e);
+    setTimeout(() => {
+      mainWindow?.loadURL(devUrl);
+    }, 1000);
+  });
   // mainWindow.loadFile(path.join(__dirname, '../dist/index.html')); // For Prod
 
   // Add Context Menu (Right Click)
