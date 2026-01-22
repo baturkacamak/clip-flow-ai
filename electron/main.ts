@@ -61,7 +61,7 @@ function createWindow() {
   });
 
   // In Dev, load Vite server. In Prod, load index.html
-  mainWindow.loadURL('http://localhost:5173');
+  mainWindow.loadURL('http://127.0.0.1:5173');
   // mainWindow.loadFile(path.join(__dirname, '../dist/index.html')); // For Prod
 
   // Add Context Menu (Right Click)

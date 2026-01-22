@@ -133,8 +133,8 @@ class PipelineManager:
         clips = curation_res.clips
 
         if not clips:
-            logger.warning("No clips found.")
-            return
+            logger.error("No clips found. Check your LLM configuration or input content.")
+            raise ValueError("No clips found via LLM.")
 
         # 4. Retrieval (Init)
         indexer = LibraryIndexer(self.cfg)
