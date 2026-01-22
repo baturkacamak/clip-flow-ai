@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "clipflowai"
+name = "clip-flow-ai"
 version = "0.0.0"
 description = "ClipFlowAI - Fully automated video production pipeline"
 authors = ["ClipFlowAI Team"]

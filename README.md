@@ -33,7 +33,7 @@ To run with GPU acceleration (NVIDIA):
 
 1. **Build:**
    ```bash
-   docker build -t clipflowai .
+   docker build -t clip-flow-ai .
    ```
 
 2. **Run:**

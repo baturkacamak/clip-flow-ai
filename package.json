@@ -1,5 +1,5 @@
 {
-  "name": "clipflow-ai-gui",
+  "name": "clip-flow-ai-gui",
   "private": true,
   "version": "1.0.0",
   "main": "dist-electron/main.js",
