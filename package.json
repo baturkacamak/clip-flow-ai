@@ -5,7 +5,8 @@
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"tsc -p electron -w\" \"wait-on dist-electron/main.js && electron .\"",
-    "dev-all": "concurrently \"poetry run python backend/server.py\" \"SKIP_BACKEND=true npm run dev\"",
+    "dev:gui-only": "cross-env SKIP_BACKEND=true npm run dev",
+    "dev-all": "concurrently \"poetry run python backend/server.py\" \"npm run dev:gui-only\"",
     "build-electron": "tsc -p electron",
     "build": "tsc && vite build && npm run build-electron",
     "preview": "vite preview",
@@ -32,6 +33,7 @@
     "@typescript-eslint/parser": "^6.13.1",
     "@vitejs/plugin-react": "^4.2.0",
     "concurrently": "^8.2.2",
+    "cross-env": "^10.1.0",
     "electron": "^27.1.2",
     "eslint": "^8.54.0",
     "eslint-plugin-react-hooks": "^4.6.0",
