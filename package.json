@@ -8,7 +8,8 @@
     "build": "tsc && vite build && tsc -p electron",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "prepare": "if command -v pre-commit >/dev/null; then pre-commit install; else echo 'pre-commit not found, skipping hook installation'; fi"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
