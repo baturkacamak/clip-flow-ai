@@ -47,17 +47,40 @@ export default function App() {
 
   // --- WebSocket Connection ---
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8000/ws/logs');
+    let ws: WebSocket;
+    let reconnectTimer: any;
 
-    ws.onopen = () => console.log('Connected to Log Stream');
-    ws.onmessage = (event) => {
-      setLogs((prev) => [...prev, event.data]);
-    };
-    ws.onerror = () => {
-      setError('WebSocket connection error. Logs may not appear.');
+    const connect = () => {
+      ws = new WebSocket('ws://localhost:8000/ws/logs');
+
+      ws.onopen = () => {
+        console.log('Connected to Log Stream');
+        setError(null); // Clear connection errors
+      };
+
+      ws.onmessage = (event) => {
+        setLogs((prev) => [...prev, event.data]);
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket closed. Reconnecting in 3s...');
+        // Only set error if we don't have a successful connection yet or it dropped unexpectedly
+        // setError('Log stream disconnected. Reconnecting...');
+        reconnectTimer = setTimeout(connect, 3000);
+      };
+
+      ws.onerror = (err) => {
+        console.error('WebSocket Error:', err);
+        // Don't set error state here to avoid flashing errors on initial load retry
+      };
     };
 
-    return () => ws.close();
+    connect();
+
+    return () => {
+      if (ws) ws.close();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+    };
   }, []);
 
   // Auto-scroll logs
