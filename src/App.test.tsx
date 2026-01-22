@@ -18,7 +18,7 @@ describe('App Component', () => {
     vi.clearAllMocks();
     // Default: Backend is ready
     mockedAxios.get.mockImplementation((url) => {
-      if (url === 'http://localhost:8000/health') {
+      if (url === 'http://127.0.0.1:8000/health') {
         return Promise.resolve({ data: { status: 'ok' } });
       }
       return Promise.reject(new Error('Not found'));
@@ -33,12 +33,17 @@ describe('App Component', () => {
 
     render(<App />);
 
-    // We expect at least one retry (so 2 calls total eventually)
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:8000/health');
-    });
-  });
 
+
+    // We expect at least one retry (so 2 calls total eventually)
+
+    await waitFor(() => {
+
+      expect(mockedAxios.get).toHaveBeenCalledWith('http://127.0.0.1:8000/health');
+
+    });
+
+  });
   it('renders the sidebar and default view', () => {
     render(<App />);
     expect(screen.getByText('AutoReel AI')).toBeInTheDocument();
@@ -87,7 +92,7 @@ describe('App Component', () => {
 
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
-        'http://localhost:8000/start-job',
+        'http://127.0.0.1:8000/start-job',
         expect.objectContaining({
           mode: 'viral',
           url: 'https://youtube.com/test',

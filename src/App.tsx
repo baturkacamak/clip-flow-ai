@@ -51,11 +51,10 @@ export default function App() {
       let reconnectTimer: any;
       let healthCheckTimer: any;
 
-      const connect = () => {
-        ws = new WebSocket('ws://localhost:8000/ws/logs');
+          const connect = () => {
+            ws = new WebSocket('ws://127.0.0.1:8000/ws/logs');
 
-        ws.onopen = () => {
-          console.log('Connected to Log Stream');
+            ws.onopen = () => {          console.log('Connected to Log Stream');
           setLogs((prev) => [...prev, '--- Connected to Backend ---']);
           setError(null);
         };
@@ -75,12 +74,11 @@ export default function App() {
         };
       };
 
-      const waitForBackend = async () => {
-        try {
-          await axios.get('http://localhost:8000/health');
-          connect();
-        } catch (err) {
-          console.log('Backend not ready. Retrying in 1s...');
+          const waitForBackend = async () => {
+            try {
+              await axios.get('http://127.0.0.1:8000/health');
+              connect();
+            } catch (err) {          console.log('Backend not ready. Retrying in 1s...');
           healthCheckTimer = setTimeout(waitForBackend, 1000);
         }
       };
@@ -112,7 +110,7 @@ export default function App() {
     try {
       const mode = activeTab === 'Viral Generator' ? 'viral' : 'story';
       const payload = { ...config, mode };
-      await axios.post('http://localhost:8000/start-job', payload);
+      await axios.post('http://127.0.0.1:8000/start-job', payload);
       setLogs(prev => [...prev, `--- Sending Job (${mode}) ---`]);
     } catch (err: any) {
       console.error(err);
