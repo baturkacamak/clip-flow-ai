@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "autoreelai"
+name = "clipflowai"
 version = "0.0.0"
-description = "AutoReelAI - Fully automated video production pipeline"
-authors = ["AutoReelAI Team"]
+description = "ClipFlowAI - Fully automated video production pipeline"
+authors = ["ClipFlowAI Team"]
 readme = "README.md"
 packages = [{include = "src"}]
 

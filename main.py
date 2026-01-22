@@ -31,7 +31,7 @@ def get_text_for_range(transcript, start: float, end: float) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="AutoReelAI Pipeline")
+    parser = argparse.ArgumentParser(description="ClipFlowAI Pipeline")
     parser.add_argument("--dry-run", action="store_true", help="Simulate uploads without sending data")
     args = parser.parse_args()
 
@@ -43,7 +43,7 @@ def main():
 
     logger = setup_logger(log_dir=config_manager.paths.log_dir, level="DEBUG")
 
-    logger.info("Starting AutoReelAI - Part 9: Distribution")
+    logger.info("Starting ClipFlowAI - Part 9: Distribution")
     if args.dry_run:
         logger.info("DRY RUN MODE ACTIVE")
 

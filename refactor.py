@@ -56,7 +56,7 @@ def update_imports(file_path):
 
 
 def main():
-    print("🚀 Starting AutoReelAI Refactor...")
+    print("🚀 Starting ClipFlowAI Refactor...")
     print(f"   Root: {PROJECT_ROOT}")
 
     # 1. Create python_core directory

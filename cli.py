@@ -16,7 +16,7 @@ except ImportError as e:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="AutoReelAI CLI")
+    parser = argparse.ArgumentParser(description="ClipFlowAI CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Process Command

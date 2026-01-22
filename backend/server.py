@@ -36,7 +36,7 @@ except ImportError as e:
 
 
 # --- App Configuration ---
-app = FastAPI(title="AutoReelAI Backend")
+app = FastAPI(title="ClipFlowAI Backend")
 
 app.add_middleware(
     CORSMiddleware,

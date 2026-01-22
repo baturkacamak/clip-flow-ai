@@ -1,4 +1,4 @@
-# Justfile for AutoReelAI
+# Justfile for ClipFlowAI
 
 default: list
 

@@ -1,10 +1,10 @@
-# AutoReelAI
+# ClipFlowAI
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Version](https://img.shields.io/badge/version-1.0.0-orange)
 
-AutoReelAI is a highly advanced, fully automated video production pipeline designed to create viral-ready content for platforms like TikTok, YouTube Shorts, and standard YouTube.
+ClipFlowAI is a highly advanced, fully automated video production pipeline designed to create viral-ready content for platforms like TikTok, YouTube Shorts, and standard YouTube.
 
 ## Features
 - **Ingestion:** High-res video/audio downloading via `yt-dlp`.
@@ -33,7 +33,7 @@ To run with GPU acceleration (NVIDIA):
 
 1. **Build:**
    ```bash
-   docker build -t autoreelai .
+   docker build -t clipflowai .
    ```
 
 2. **Run:**
@@ -43,7 +43,7 @@ To run with GPU acceleration (NVIDIA):
      -v $(pwd)/assets:/app/assets \
      -v $(pwd)/config:/app/config \
      --env-file .env \
-     autoreelai process "https://www.youtube.com/watch?v=..."
+     clipflowai process "https://www.youtube.com/watch?v=..."
    ```
 
 ## Configuration
