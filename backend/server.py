@@ -155,6 +155,11 @@ async def websocket_logs(websocket: WebSocket):
         pass
 
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
+
 @app.get("/library")
 async def get_library():
     library_path = Path("./library")

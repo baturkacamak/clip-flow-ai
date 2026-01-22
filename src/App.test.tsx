@@ -16,6 +16,27 @@ const mockOpenFile = vi.fn();
 describe('App Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default: Backend is ready
+    mockedAxios.get.mockImplementation((url) => {
+      if (url === 'http://localhost:8000/health') {
+        return Promise.resolve({ data: { status: 'ok' } });
+      }
+      return Promise.reject(new Error('Not found'));
+    });
+  });
+
+  it('polls for backend health before connecting', async () => {
+    // Mock initial failure, then success
+    mockedAxios.get
+      .mockRejectedValueOnce(new Error('Network Error'))
+      .mockResolvedValueOnce({ data: { status: 'ok' } });
+
+    render(<App />);
+
+    // We expect at least one retry (so 2 calls total eventually)
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:8000/health');
+    });
   });
 
   it('renders the sidebar and default view', () => {

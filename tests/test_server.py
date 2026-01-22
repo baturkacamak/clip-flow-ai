@@ -18,6 +18,12 @@ def mock_pipeline(mocker):
     return mocker.patch("server.PipelineManager")
 
 
+def test_health_check():
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_start_job_viral_valid(mock_pipeline):
     payload = {"mode": "viral", "url": "https://youtube.com/test", "llm_provider": "openai"}
     response = client.post("/start-job", json=payload)

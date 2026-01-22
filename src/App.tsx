@@ -45,44 +45,54 @@ export default function App() {
     dry_run: false
   });
 
-  // --- WebSocket Connection ---
-  useEffect(() => {
-    let ws: WebSocket;
-    let reconnectTimer: any;
+    // --- WebSocket Connection ---
+    useEffect(() => {
+      let ws: WebSocket;
+      let reconnectTimer: any;
+      let healthCheckTimer: any;
 
-    const connect = () => {
-      ws = new WebSocket('ws://localhost:8000/ws/logs');
+      const connect = () => {
+        ws = new WebSocket('ws://localhost:8000/ws/logs');
 
-      ws.onopen = () => {
-        console.log('Connected to Log Stream');
-        setError(null); // Clear connection errors
+        ws.onopen = () => {
+          console.log('Connected to Log Stream');
+          setLogs((prev) => [...prev, '--- Connected to Backend ---']);
+          setError(null);
+        };
+
+        ws.onmessage = (event) => {
+          setLogs((prev) => [...prev, event.data]);
+        };
+
+        ws.onclose = () => {
+          // setError('Log stream disconnected. Reconnecting...');
+          reconnectTimer = setTimeout(waitForBackend, 3000);
+        };
+
+        ws.onerror = (err) => {
+          console.error('WebSocket Error:', err);
+          ws.close();
+        };
       };
 
-      ws.onmessage = (event) => {
-        setLogs((prev) => [...prev, event.data]);
+      const waitForBackend = async () => {
+        try {
+          await axios.get('http://localhost:8000/health');
+          connect();
+        } catch (err) {
+          console.log('Backend not ready. Retrying in 1s...');
+          healthCheckTimer = setTimeout(waitForBackend, 1000);
+        }
       };
 
-      ws.onclose = () => {
-        console.log('WebSocket closed. Reconnecting in 3s...');
-        // Only set error if we don't have a successful connection yet or it dropped unexpectedly
-        // setError('Log stream disconnected. Reconnecting...');
-        reconnectTimer = setTimeout(connect, 3000);
+      waitForBackend();
+
+      return () => {
+        if (ws) ws.close();
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        if (healthCheckTimer) clearTimeout(healthCheckTimer);
       };
-
-      ws.onerror = (err) => {
-        console.error('WebSocket Error:', err);
-        // Don't set error state here to avoid flashing errors on initial load retry
-      };
-    };
-
-    connect();
-
-    return () => {
-      if (ws) ws.close();
-      if (reconnectTimer) clearTimeout(reconnectTimer);
-    };
-  }, []);
-
+    }, []);
   // Auto-scroll logs
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
