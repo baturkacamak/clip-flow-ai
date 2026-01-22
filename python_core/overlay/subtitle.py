@@ -3,7 +3,7 @@ from typing import Any, List, Optional, Tuple
 
 import numpy as np
 from loguru import logger
-from moviepy import CompositeVideoClip, VideoFileClip
+from moviepy.editor import CompositeVideoClip, VideoFileClip
 from PIL import Image, ImageDraw, ImageFont
 
 from python_core.config_manager import ConfigManager
@@ -158,7 +158,7 @@ class SubtitleOverlay:
         # We make a clip of same duration as video
         # We assume ImageClip accepts a function via make_frame?
         # No, VideoClip(make_frame=...)
-        from moviepy import VideoClip
+        from moviepy.editor import VideoClip
 
         subtitle_clip = VideoClip(make_frame=make_text_frame, duration=video.duration)
 
