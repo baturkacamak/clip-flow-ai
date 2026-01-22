@@ -9,7 +9,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 // Mock Electron Bridge
 const mockOpenFile = vi.fn();
-window.electron = {
+(window as any).electron = {
   openFile: mockOpenFile
 };
 

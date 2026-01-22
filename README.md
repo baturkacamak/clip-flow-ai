@@ -54,6 +54,27 @@ ClipFlowAI is a powerful, fully automated video production pipeline designed to 
     - For YouTube uploads, place your `client_secrets.json` in the `config/` directory.
     - For TikTok uploads, place your `tiktok_cookies.json` in the `assets/auth/` directory.
 
+## Desktop GUI
+
+ClipFlowAI also includes a desktop GUI for a more interactive experience.
+
+### GUI Installation
+To use the GUI, you need to install the Node.js dependencies:
+
+```bash
+# From the project root
+npm install
+```
+
+### Running the GUI
+To run the GUI in development mode:
+
+```bash
+npm run dev
+```
+
+This command will concurrently start the Vite development server for the React frontend, compile the Electron-specific TypeScript code, and launch the Electron application.
+
 ## Usage
 
 ClipFlowAI is controlled via `cli.py`. The main command is `process`, which has two primary modes: `viral` and `story`.

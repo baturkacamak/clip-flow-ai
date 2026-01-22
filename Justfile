@@ -16,6 +16,9 @@ format:
     ruff format .
     ruff check . --fix
 
+build-ui:
+    npm run build
+
 clean:
     rm -rf dist build .pytest_cache .mypy_cache .ruff_cache
     find . -type d -name "__pycache__" -exec rm -rf {} +
