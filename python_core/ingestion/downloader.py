@@ -89,8 +89,35 @@ class VideoDownloader:
 
                 # Check Duplicates
                 if self._is_duplicate(video_id):
-                    logger.warning(f"Video '{title}' ({video_id}) already exists in history. Skipping.")
-                    return None
+                    logger.info(f"Video '{title}' ({video_id}) found in history. Checking for files...")
+                    # Search for existing files matching the ID
+                    # Escape brackets for glob if necessary, but simple substring match is safer
+                    # We iterate to find match
+                    found_video = None
+                    found_audio = None
+
+                    for f in self.workspace.iterdir():
+                        if f"[{video_id}]" in f.name:
+                            if f.suffix == f".{self.cfg.video_format}":
+                                found_video = f
+                            elif f.suffix == f".{self.cfg.audio_format}":
+                                found_audio = f
+
+                    if found_video:
+                        logger.success(f"Files found for duplicate '{title}'. Skipping download.")
+                        # Construct metadata path (usually .info.json)
+                        # We try to find it or assume based on video path
+                        meta_path = found_video.with_suffix(".info.json")
+
+                        return {
+                            "id": video_id,
+                            "title": title,
+                            "video_path": str(found_video),
+                            "metadata_path": str(meta_path),
+                            "audio_path": str(found_audio) if found_audio else None,
+                        }
+                    else:
+                        logger.warning(f"Video '{title}' in history but files missing. Re-downloading.")
 
                 # Quality Control (Simple Check based on available formats is complex in dry run,
                 # but we can check if generic height is acceptable if available in info)

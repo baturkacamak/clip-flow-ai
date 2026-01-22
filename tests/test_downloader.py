@@ -153,3 +153,52 @@ def test_download_retry_on_429(mocker, mock_config_manager):
     # Call 2: Retry options (writesubtitles=False)
     retry_opts = calls[2][0][0]
     assert retry_opts.get("writesubtitles") is False
+
+
+def test_download_duplicate_logic(mocker, mock_config_manager):
+    """Test duplicate handling with and without existing files."""
+    mock_ydl = mocker.patch("python_core.ingestion.downloader.yt_dlp.YoutubeDL")
+    mock_instance = mock_ydl.return_value.__enter__.return_value
+
+    downloader = VideoDownloader(mock_config_manager)
+    video_id = "dup123"
+    title = "Existing Video"
+
+    # 1. Simulate duplicate in history
+    downloader._add_to_history(video_id)
+
+    # Setup mock for dry run to return info
+    mock_instance.extract_info.return_value = {"id": video_id, "title": title, "height": 1080}
+
+    # Case A: File Missing -> Should Download
+    # We ensure no files exist in workspace
+    # (tmp_path is clean by default for this test run)
+
+    # We need to mock prepare_filename to avoid crash in download path
+    mock_instance.prepare_filename.return_value = str(
+        Path(mock_config_manager.paths.workspace_dir) / f"{title} [{video_id}].mp4"
+    )
+
+    downloader.download("http://test.com/dup1")
+
+    # Should have called download=True
+    # Calls: 1. dry run (download=False) 2. download (download=True)
+    assert mock_instance.extract_info.call_count == 2
+    assert mock_instance.extract_info.call_args_list[1][1]["download"] is True
+
+    # Case B: File Exists -> Should Skip
+    mock_instance.extract_info.reset_mock()
+
+    # Create the file
+    vid_file = Path(mock_config_manager.paths.workspace_dir) / f"{title} [{video_id}].mp4"
+    vid_file.touch()
+
+    result = downloader.download("http://test.com/dup1")
+
+    # Should have returned result pointing to existing file
+    assert result is not None
+    assert result["video_path"] == str(vid_file)
+
+    # Should NOT have called download=True, only dry run (download=False)
+    assert mock_instance.extract_info.call_count == 1
+    assert mock_instance.extract_info.call_args_list[0][1]["download"] is False

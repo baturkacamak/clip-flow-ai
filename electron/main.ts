@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron';
 import path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 
@@ -63,6 +63,18 @@ function createWindow() {
   // In Dev, load Vite server. In Prod, load index.html
   mainWindow.loadURL('http://localhost:5173');
   // mainWindow.loadFile(path.join(__dirname, '../dist/index.html')); // For Prod
+
+  // Add Context Menu (Right Click)
+  mainWindow.webContents.on('context-menu', (_, params) => {
+    const menu = Menu.buildFromTemplate([
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      { type: 'separator' },
+      { role: 'selectAll' },
+    ]);
+    menu.popup({ window: mainWindow as BrowserWindow });
+  });
 }
 
 // --- Lifecycle & IPC ---
