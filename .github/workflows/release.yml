@@ -6,8 +6,7 @@ on:
       - 'v*'
 
 permissions:
-  contents: read
-  write-all: true
+  contents: write
 
 jobs:
   release:
