@@ -60,3 +60,29 @@ def test_curation_mock(mocker, mock_config_manager):
     assert len(result.clips) == 1
     assert result.clips[0].title == "Viral Moment"
     assert result.clips[0].virality_score == 85
+
+
+def test_curator_no_key(mock_config_manager):
+    # Unset key
+    mock_config_manager.intelligence.openai_api_key = None
+    mock_config_manager.intelligence.anthropic_api_key = None
+
+    curator = ContentCurator(mock_config_manager)
+
+    # Should handle it gracefully or return empty
+    transcript = TranscriptionResult(video_id="test", language="en", segments=[])
+    result = curator.curate(transcript)
+
+    assert len(result.clips) == 0
+
+
+def test_curator_api_error(mocker, mock_config_manager):
+    mock_client = mocker.patch("python_core.intelligence.curator.instructor.from_openai")
+    mock_client.return_value.chat.completions.create.side_effect = Exception("API Error")
+
+    curator = ContentCurator(mock_config_manager)
+    transcript = TranscriptionResult(video_id="test", language="en", segments=[])
+
+    # Should catch and return empty list
+    result = curator.curate(transcript)
+    assert len(result.clips) == 0

@@ -82,6 +82,38 @@ def test_pipeline_run_flow(mocker, mock_config_manager, mock_components):
     mock_yt_cls.return_value.upload.assert_called()
 
 
+def test_pipeline_no_clips_error(mocker, mock_config_manager, mock_components):
+    """Test that pipeline raises ValueError when no clips are found."""
+    mock_downloader = mocker.patch("python_core.pipeline.VideoDownloader").return_value
+    mock_downloader.download.return_value = {"id": "vid1", "video_path": "v.mp4"}
+
+    mock_transcriber = mocker.patch("python_core.pipeline.AudioTranscriber").return_value
+    mock_transcriber.transcribe.return_value = mocker.Mock(segments=[])
+
+    mock_curator = mocker.patch("python_core.pipeline.ContentCurator").return_value
+    # Return empty clips
+    mock_curator.curate.return_value = mocker.Mock(clips=[])
+
+    pipeline = PipelineManager(mock_config_manager)
+
+    # Run should raise ValueError because of our check
+    # We catch it here or allow pytest to see it
+    with pytest.raises(ValueError, match="No clips found via LLM"):
+        pipeline.run("http://test", mode="viral")
+
+
+def test_pipeline_download_failed(mocker, mock_config_manager, mock_components):
+    """Test that pipeline aborts if download fails."""
+    mock_downloader = mocker.patch("python_core.pipeline.VideoDownloader").return_value
+    mock_downloader.download.return_value = None
+
+    pipeline = PipelineManager(mock_config_manager)
+    pipeline.run("http://test", mode="viral")
+
+    # Transcriber should NOT be called
+    mocker.patch("python_core.pipeline.AudioTranscriber").return_value.transcribe.assert_not_called()
+
+
 def test_pipeline_cleanup(mocker, mock_config_manager, mock_components):
     # Test that intermediate files would be cleaned up
     # We can mock shutil.rmtree or os.remove
