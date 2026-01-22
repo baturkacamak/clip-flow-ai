@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Box, Drawer, AppBar, Toolbar, List, Typography, Divider, ListItem,
+  Box, Drawer, Toolbar, List, Typography, Divider, ListItem,
   ListItemButton, ListItemIcon, ListItemText, TextField, Button,
       Accordion, AccordionSummary, AccordionDetails, Select, MenuItem,
       FormControl, InputLabel, Slider, Switch, FormControlLabel, Paper,
@@ -12,6 +12,8 @@ import {
     } from '@mui/icons-material';
     import { Snackbar, Alert } from '@mui/material';
     import axios from 'axios';
+
+import SettingsView from './components/SettingsView';
 
     // TypeScript definition for Electron API
     declare global {
@@ -290,60 +292,66 @@ import {
             </Box>
 
             {/* Tab Specific Content */}
-            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-              {activeTab === 'Viral Generator' && (              <Paper sx={{ p: 3, bgcolor: '#1e1e1e', mb: 2 }}>
-                <Typography variant="h5" sx={{ mb: 2 }}>Paste YouTube URL</Typography>
-                <TextField
-                  fullWidth label="https://www.youtube.com/watch?v=..." variant="outlined"
-                  value={config.url}
-                  onChange={(e) => handleConfigChange('url', e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  InputLabelProps={{ style: { color: '#aaa' } }}
-                  InputProps={{ style: { color: '#fff', fontSize: '1.2rem' } }}
-                  sx={{ '.MuiOutlinedInput-notchedOutline': { borderColor: '#555' } }}
-                />
-              </Paper>
-            )}
+              {activeTab === 'Settings' ? (
+                 <SettingsView />
+              ) : (
+                <>
+                  {activeTab === 'Viral Generator' && (              <Paper sx={{ p: 3, bgcolor: '#1e1e1e', mb: 2 }}>
+                    <Typography variant="h5" sx={{ mb: 2 }}>Paste YouTube URL</Typography>
+                    <TextField
+                      fullWidth label="https://www.youtube.com/watch?v=..." variant="outlined"
+                      value={config.url}
+                      onChange={(e) => handleConfigChange('url', e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      InputLabelProps={{ style: { color: '#aaa' } }}
+                      InputProps={{ style: { color: '#fff', fontSize: '1.2rem' } }}
+                      sx={{ '.MuiOutlinedInput-notchedOutline': { borderColor: '#555' } }}
+                    />
+                  </Paper>
+                )}
 
-            {activeTab === 'Story Mode' && (
-              <Paper sx={{ p: 3, bgcolor: '#1e1e1e', mb: 2 }}>
-                <Typography variant="h5" sx={{ mb: 2 }}>Select Voiceover</Typography>
-                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                  <Button variant="contained" onClick={handleSelectFile} startIcon={<FolderOpen />}>
-                    Choose Audio
+                {activeTab === 'Story Mode' && (
+                  <Paper sx={{ p: 3, bgcolor: '#1e1e1e', mb: 2 }}>
+                    <Typography variant="h5" sx={{ mb: 2 }}>Select Voiceover</Typography>
+                    <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                      <Button variant="contained" onClick={handleSelectFile} startIcon={<FolderOpen />}>
+                        Choose Audio
+                      </Button>
+                      <TextField
+                        fullWidth disabled value={config.audio_path} label="File Path"
+                        InputLabelProps={{ style: { color: '#aaa' } }}
+                        InputProps={{ style: { color: '#fff' } }}
+                      />
+                    </Box>
+                    <TextField
+                      fullWidth multiline rows={2} label="Optional Script (Context)"
+                      value={config.script} onChange={(e) => handleConfigChange('script', e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleStartJob(); } }}
+                      InputLabelProps={{ style: { color: '#aaa' } }}
+                      InputProps={{ style: { color: '#fff' } }}
+                      sx={{ '.MuiOutlinedInput-notchedOutline': { borderColor: '#555' } }}
+                    />
+                  </Paper>
+                )}
+
+                {/* Action Button */}
+                {(activeTab === 'Viral Generator' || activeTab === 'Story Mode') && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    startIcon={isProcessing ? <CircularProgress size={24} color="inherit" /> : <PlayArrow />}
+                    onClick={handleStartJob}
+                    disabled={isProcessing}
+                    sx={{ py: 2, fontSize: '1.1rem', fontWeight: 'bold' }}
+                  >
+                    {isProcessing ? 'PROCESSING...' : 'START PIPELINE'}
                   </Button>
-                  <TextField
-                    fullWidth disabled value={config.audio_path} label="File Path"
-                    InputLabelProps={{ style: { color: '#aaa' } }}
-                    InputProps={{ style: { color: '#fff' } }}
-                  />
-                </Box>
-                <TextField
-                  fullWidth multiline rows={2} label="Optional Script (Context)"
-                  value={config.script} onChange={(e) => handleConfigChange('script', e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleStartJob(); } }}
-                  InputLabelProps={{ style: { color: '#aaa' } }}
-                  InputProps={{ style: { color: '#fff' } }}
-                  sx={{ '.MuiOutlinedInput-notchedOutline': { borderColor: '#555' } }}
-                />
-              </Paper>
-            )}
-
-            {/* Action Button */}
-            {(activeTab === 'Viral Generator' || activeTab === 'Story Mode') && (
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                startIcon={isProcessing ? <CircularProgress size={24} color="inherit" /> : <PlayArrow />}
-                onClick={handleStartJob}
-                disabled={isProcessing}
-                sx={{ py: 2, fontSize: '1.1rem', fontWeight: 'bold' }}
-              >
-                {isProcessing ? 'PROCESSING...' : 'START PIPELINE'}
-              </Button>
-            )}
+                )}
+                </>
+              )}
           </Box>
 
           {/* Console Log */}

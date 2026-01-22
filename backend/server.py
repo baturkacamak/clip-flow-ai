@@ -20,10 +20,23 @@ sys.path.append(str(BASE_DIR))
 
 # Import the actual pipeline logic from python_core
 try:
-    from python_core.config_manager import ConfigManager
+    from python_core.config_manager import AppConfig, ConfigManager
+except ImportError as e:
+    print(f"WARNING: Could not import python_core.config_manager. Error: {e}")
+
+    # Fallback AppConfig for server startup if core is broken
+    class AppConfig(BaseModel):
+        pass
+
+    class ConfigManager:
+        def __init__(self):
+            self.config = AppConfig()
+
+
+try:
     from python_core.pipeline import PipelineManager
 except ImportError as e:
-    print(f"WARNING: Could not import python_core modules. Error: {e}")
+    print(f"WARNING: Could not import python_core.pipeline. Error: {e}")
 
     # Mock implementation for UI testing if core is missing
     class PipelineManager:  # type: ignore
@@ -171,6 +184,46 @@ async def get_library():
         return {"files": []}
     files = [f.name for f in library_path.iterdir() if f.is_file()]
     return {"files": files}
+
+
+@app.get("/settings")
+async def get_settings():
+    try:
+        # Re-initialize to get fresh config from disk
+        cm = ConfigManager()
+        # Helper to convert Pydantic models to dict recursively
+        return cm.config.model_dump()
+    except Exception as e:
+        logger.error(f"Error reading settings: {e}")
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@app.post("/settings")
+async def update_settings(new_settings: AppConfig):
+    try:
+        # Validate is automatic via Pydantic model
+
+        # Save back to yaml
+        config_path = Path("config/settings.yaml")
+
+        # We need to preserve the structure.
+        # Since AppConfig matches the yaml structure, we can dump it.
+        # However, we should be careful about preserving comments (YAML libraries usually lose them).
+        # For now, functional correctness is priority.
+
+        import yaml
+
+        # Ensure directory exists
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(config_path, "w") as f:
+            yaml.dump(new_settings.model_dump(), f, sort_keys=False)
+
+        logger.info("Settings updated via UI")
+        return {"status": "updated", "config": new_settings.model_dump()}
+    except Exception as e:
+        logger.error(f"Error updating settings: {e}")
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 if __name__ == "__main__":

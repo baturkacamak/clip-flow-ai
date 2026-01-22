@@ -71,7 +71,7 @@ function createWindow() {
   // mainWindow.loadFile(path.join(__dirname, '../dist/index.html')); // For Prod
 
   // Add Context Menu (Right Click)
-  mainWindow.webContents.on('context-menu', (_, params) => {
+  mainWindow.webContents.on('context-menu', (_, _params) => {
     const menu = Menu.buildFromTemplate([
       { role: 'cut' },
       { role: 'copy' },
