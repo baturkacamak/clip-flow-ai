@@ -9,9 +9,15 @@ let pythonProcess: ChildProcess | null = null;
 const PY_SERVER_PATH = path.join(__dirname, '../backend/server.py');
 
 function createPythonProcess() {
+  if (process.env.SKIP_BACKEND === 'true') {
+    console.log('Skipping Python Backend spawn (managed externally)...');
+    return;
+  }
+
   console.log('Starting Python Backend...');
-  // Note: Ensure 'python' is in system PATH or use absolute path to venv python
-  pythonProcess = spawn('python', [PY_SERVER_PATH], {
+  const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+
+  pythonProcess = spawn(pythonCmd, [PY_SERVER_PATH], {
     cwd: path.join(__dirname, '../'), // Run from root
   });
 
