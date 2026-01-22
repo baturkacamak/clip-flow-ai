@@ -4,7 +4,7 @@ version = "0.0.0"
 description = "ClipFlowAI - Fully automated video production pipeline"
 authors = ["ClipFlowAI Team"]
 readme = "README.md"
-packages = [{include = "src"}]
+packages = [{include = "python_core"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
