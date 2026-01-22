@@ -101,4 +101,22 @@ describe('App Component', () => {
       );
     });
   });
+
+  it('submits job configuration on Enter key', async () => {
+    render(<App />);
+    mockedAxios.post.mockResolvedValue({ data: { status: 'started' } });
+
+    const urlInput = screen.getByLabelText(/youtube\.com/i);
+    fireEvent.change(urlInput, { target: { value: 'https://youtube.com/enter' } });
+    fireEvent.keyDown(urlInput, { key: 'Enter', code: 'Enter', charCode: 13 });
+
+    await waitFor(() => {
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        'http://127.0.0.1:8000/start-job',
+        expect.objectContaining({
+          url: 'https://youtube.com/enter'
+        })
+      );
+    });
+  });
 });
