@@ -5,10 +5,14 @@ import threading
 from pathlib import Path
 from typing import Optional
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 from pydantic import BaseModel
+
+# Load env vars
+load_dotenv()
 
 # --- Architecture Fix: Add Root to sys.path ---
 BASE_DIR = Path(__file__).resolve().parent.parent
