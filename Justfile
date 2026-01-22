@@ -26,7 +26,7 @@ gui:
     npm run dev
 
 dev:
-    npx concurrently "just server" "just gui"
+    npm run dev-all
 
 clean:
     rm -rf dist build .pytest_cache .mypy_cache .ruff_cache
