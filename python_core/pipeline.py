@@ -59,7 +59,9 @@ class PipelineManager:
                     logger.error("URL is required for viral mode.")
                     return
                 self._run_viral_mode(url, upload, platforms)
-
+        except Exception as e:
+            logger.exception(f"Pipeline failed: {e}")
+            raise e
         finally:
             if not self.keep_temp:
                 self.cleanup()

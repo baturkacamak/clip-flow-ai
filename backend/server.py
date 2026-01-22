@@ -7,12 +7,10 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
 from pydantic import BaseModel
 
 # --- Architecture Fix: Add Root to sys.path ---
-# Current file: /backend/server.py
-# Root dir: /
-# Python Core: /python_core
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
@@ -24,7 +22,7 @@ except ImportError as e:
     print(f"WARNING: Could not import python_core modules. Error: {e}")
 
     # Mock implementation for UI testing if core is missing
-    class PipelineManager:
+    class PipelineManager:  # type: ignore
         def __init__(self, config, keep_temp=False):
             pass
 
@@ -33,18 +31,6 @@ except ImportError as e:
             import time
 
             time.sleep(2)
-
-
-# --- App Configuration ---
-app = FastAPI(title="ClipFlowAI Backend")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 # --- Log Streaming ---
@@ -63,12 +49,46 @@ class LogQueueHandler(logging.Handler):
             pass
 
 
+# Bridge loguru to standard logging
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        # Get corresponding Loguru level if it exists
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        # Find caller from where originated the logged message
+        frame, depth = logging.currentframe(), 2
+        while frame.f_code.co_filename == logging.__file__:
+            frame = frame.f_back
+            depth += 1
+
+        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+
+
 log_handler = LogQueueHandler()
 formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", datefmt="%H:%M:%S")
 log_handler.setFormatter(formatter)
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.INFO)
-root_logger.addHandler(log_handler)
+
+# Redirect loguru to our LogQueueHandler
+logger.add(log_handler, format="{time:HH:mm:ss} | {level: <8} | {message}", level="INFO")
+
+# Also intercept standard logging
+logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+logging.getLogger("uvicorn").handlers = [InterceptHandler()]
+logging.getLogger("uvicorn.access").handlers = [InterceptHandler()]
+
+# --- App Configuration ---
+app = FastAPI(title="ClipFlowAI Backend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # --- Data Models ---
@@ -89,10 +109,9 @@ class JobConfig(BaseModel):
 
 # --- Logic ---
 def run_pipeline_thread(config: dict):
-    logging.info(f"--- Starting Job: Mode={config.get('mode')} ---")
+    logger.info(f"--- Starting Job: Mode={config.get('mode')} ---")
     try:
         # Load ConfigManager (usually loads from settings.yaml)
-        # We might want to override settings here based on UI input if ConfigManager supports it
         try:
             cm = ConfigManager()
         except Exception:
@@ -107,10 +126,10 @@ def run_pipeline_thread(config: dict):
             audio_path=config.get("audio_path"),
         )
     except Exception as e:
-        logging.error(f"PIPELINE ERROR: {e}")
+        logger.error(f"PIPELINE ERROR: {e}")
         import traceback
 
-        logging.error(traceback.format_exc())
+        logger.error(traceback.format_exc())
 
 
 @app.post("/start-job")

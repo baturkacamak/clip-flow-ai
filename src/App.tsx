@@ -9,6 +9,7 @@ import {
   MovieCreation, AutoFixHigh, VideoLibrary, Settings,
   ExpandMore, FolderOpen, PlayArrow
 } from '@mui/icons-material';
+import { Snackbar, Alert } from '@mui/material';
 import axios from 'axios';
 
 // TypeScript definition for Electron API
@@ -26,6 +27,7 @@ export default function App() {
   // --- State Management ---
   const [activeTab, setActiveTab] = useState('Viral Generator');
   const [logs, setLogs] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
   // Configuration State
@@ -50,6 +52,9 @@ export default function App() {
     ws.onopen = () => console.log('Connected to Log Stream');
     ws.onmessage = (event) => {
       setLogs((prev) => [...prev, event.data]);
+    };
+    ws.onerror = () => {
+      setError('WebSocket connection error. Logs may not appear.');
     };
 
     return () => ws.close();
@@ -76,9 +81,11 @@ export default function App() {
       const payload = { ...config, mode };
       await axios.post('http://localhost:8000/start-job', payload);
       setLogs(prev => [...prev, `--- Sending Job (${mode}) ---`]);
-    } catch (error) {
-      console.error(error);
-      setLogs(prev => [...prev, 'ERROR: Could not contact backend.']);
+    } catch (err: any) {
+      console.error(err);
+      const msg = err.response?.data?.detail || 'Could not contact backend.';
+      setError(`ERROR: ${msg}`);
+      setLogs(prev => [...prev, `ERROR: ${msg}`]);
     }
   };
 
@@ -261,6 +268,13 @@ export default function App() {
           ))}
           <div ref={logEndRef} />
         </Box>
+
+        {/* Error Snackbar */}
+        <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
+          <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
+            {error}
+          </Alert>
+        </Snackbar>
 
       </Box>
     </Box>
