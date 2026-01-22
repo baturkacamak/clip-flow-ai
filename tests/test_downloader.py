@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from yt_dlp.utils import DownloadError
 
 from python_core.ingestion.downloader import VideoDownloader
 
@@ -104,3 +105,51 @@ def test_download_quality_skip(mocker, mock_config_manager):
     result = downloader.download("http://test.com/lowres")
 
     assert result is None
+
+
+def test_download_retry_on_429(mocker, mock_config_manager):
+    """Test that downloader retries without subtitles on HTTP 429."""
+    mock_ydl = mocker.patch("python_core.ingestion.downloader.yt_dlp.YoutubeDL")
+    mock_instance = mock_ydl.return_value.__enter__.return_value
+
+    # Mock prepare_filename
+    mock_instance.prepare_filename.return_value = str(
+        Path(mock_config_manager.paths.workspace_dir) / "Test Video [vid429].mp4"
+    )
+
+    # Side effect:
+    # 1. extract_info (dry run) -> Success
+    # 2. extract_info (download) -> Error 429
+    # 3. extract_info (retry) -> Success
+    mock_instance.extract_info.side_effect = [
+        {"id": "vid429", "title": "Retry Video", "height": 1080},  # Dry run
+        DownloadError("HTTP Error 429: Too Many Requests"),  # First attempt fails
+        {"id": "vid429", "title": "Retry Video", "ext": "mp4"},  # Retry succeeds
+        {"id": "vid429", "title": "Retry Video", "ext": "mp4"},  # Post-process call
+    ]
+
+    downloader = VideoDownloader(mock_config_manager)
+    result = downloader.download("http://test.com/retry")
+
+    assert result is not None
+    assert result["id"] == "vid429"
+
+    # Check calls
+    # Call 1: Dry run
+    # Call 2: Failed download
+    # Call 3: Retry download
+    # Call 4: Post-processing (prepare_filename helper block)
+    assert mock_instance.extract_info.call_count >= 3
+
+    # Verify that the retry call (3rd initialization of YoutubeDL) disabled subtitles
+    # We inspect the calls to YoutubeDL constructor
+    calls = mock_ydl.call_args_list
+
+    # Call 0: Dry run options
+    # Call 1: Initial download options (writesubtitles=True)
+    initial_opts = calls[1][0][0]
+    assert initial_opts.get("writesubtitles") is True
+
+    # Call 2: Retry options (writesubtitles=False)
+    retry_opts = calls[2][0][0]
+    assert retry_opts.get("writesubtitles") is False

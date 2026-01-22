@@ -139,9 +139,9 @@ async def start_job(config: JobConfig):
     if config.mode == "story" and not config.audio_path:
         raise HTTPException(status_code=400, detail="Audio file path is required for Story Mode.")
 
-    thread = threading.Thread(target=run_pipeline_thread, args=(config.dict(),), daemon=True)
+    thread = threading.Thread(target=run_pipeline_thread, args=(config.model_dump(),), daemon=True)
     thread.start()
-    return {"status": "started", "config": config.dict()}
+    return {"status": "started", "config": config.model_dump()}
 
 
 @app.websocket("/ws/logs")

@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 
 import yt_dlp
 from loguru import logger
+from yt_dlp.utils import DownloadError
 
 from python_core.config_manager import ConfigManager, DownloaderConfig, PathsConfig
 
@@ -149,39 +150,66 @@ class VideoDownloader:
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info_dict = ydl.extract_info(url, download=True)
-
-                # Retrieve final file paths
-                # Note: filename logic in yt-dlp can be tricky with post-processors
-                # We can prepare the return object based on the requested template
-
-                base_filename = ydl.prepare_filename(info_dict)
-                # If merged, the extension might change to .mp4 from .webm etc.
-                # But since we forced merge_output_format, it should be predictable.
-
-                video_path = Path(base_filename).with_suffix(f".{self.cfg.video_format}")
-
-                # Metadata path
-                metadata_path = Path(base_filename).with_suffix(".info.json")
-
-                # Audio path (if separated)
-                audio_path = None
-                if self.cfg.separate_audio:
-                    audio_path = Path(base_filename).with_suffix(f".{self.cfg.audio_format}")
-
-                result = {
-                    "id": video_id,
-                    "title": title,
-                    "video_path": str(video_path),
-                    "metadata_path": str(metadata_path),
-                    "audio_path": str(audio_path) if audio_path else None,
-                }
-
-                # Update History
-                self._add_to_history(video_id)
-
-                logger.success(f"Successfully processed: {title}")
-                return result
-
+        except DownloadError as e:
+            if "HTTP Error 429" in str(e):
+                logger.warning("HTTP 429: Subtitles failed. Retrying without...")
+                # Disable subtitle downloading and retry
+                retry_opts = ydl_opts.copy()
+                retry_opts["writesubtitles"] = False
+                retry_opts["writeautomaticsub"] = False
+                try:
+                    with yt_dlp.YoutubeDL(retry_opts) as ydl:
+                        info_dict = ydl.extract_info(url, download=True)
+                except Exception as retry_e:
+                    logger.error(f"Retry download failed for {url}: {retry_e}")
+                    return None
+            else:
+                logger.error(f"Download failed for {url}: {e}")
+                return None
         except Exception as e:
             logger.error(f"Download failed for {url}: {e}")
+            return None
+
+        # Process successful download (info_dict)
+        try:
+            # Retrieve final file paths
+            # Note: filename logic in yt-dlp can be tricky with post-processors
+            # We can prepare the return object based on the requested template
+
+            # Use ydl instance from context if possible, but here we just need generic filename prep or reconstruction
+            # Re-instantiate a dummy ydl to access prepare_filename if needed,
+            # or rely on info_dict['filename'] if reliable
+            # actually prepare_filename is safest.
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                base_filename = ydl.prepare_filename(info_dict)
+
+            # If merged, the extension might change to .mp4 from .webm etc.
+            # But since we forced merge_output_format, it should be predictable.
+
+            video_path = Path(base_filename).with_suffix(f".{self.cfg.video_format}")
+
+            # Metadata path
+            metadata_path = Path(base_filename).with_suffix(".info.json")
+
+            # Audio path (if separated)
+            audio_path = None
+            if self.cfg.separate_audio:
+                audio_path = Path(base_filename).with_suffix(f".{self.cfg.audio_format}")
+
+            result = {
+                "id": video_id,
+                "title": title,
+                "video_path": str(video_path),
+                "metadata_path": str(metadata_path),
+                "audio_path": str(audio_path) if audio_path else None,
+            }
+
+            # Update History
+            self._add_to_history(video_id)
+
+            logger.success(f"Successfully processed: {title}")
+            return result
+
+        except Exception as e:
+            logger.error(f"Post-processing failed for {url}: {e}")
             return None
