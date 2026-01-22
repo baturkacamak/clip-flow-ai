@@ -4,9 +4,10 @@
   "version": "1.0.0",
   "main": "dist-electron/main.js",
   "scripts": {
-    "dev": "concurrently \"vite\" \"tsc -p electron -w\" \"electron .\"",
+    "dev": "concurrently \"vite\" \"tsc -p electron -w\" \"wait-on dist-electron/main.js && electron .\"",
     "dev-all": "concurrently \"poetry run python backend/server.py\" \"npm run dev\"",
-    "build": "tsc && vite build && tsc -p electron",
+    "build-electron": "tsc -p electron",
+    "build": "tsc && vite build && npm run build-electron",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -39,7 +40,8 @@
     "lint-staged": "^16.2.7",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
-    "vitest": "^1.0.1"
+    "vitest": "^1.0.1",
+    "wait-on": "^9.0.3"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
